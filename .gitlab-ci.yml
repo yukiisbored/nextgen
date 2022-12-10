@@ -22,21 +22,23 @@ build:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_MERGE_REQUEST_ID
 
-netlify:preview:
+.netlify:
   stage: deploy
-  image: "ghcr.io/williamjacksn/netlify-cli:12.2.9"
+  image:
+    name: "ghcr.io/williamjacksn/netlify-cli:12.2.9"
+    entrypoint: [""]
   needs:
     - build
+
+netlify:preview:
+  extends: .netlify
   script:
     - netlify deploy --dir public
   rules:
     - if: $CI_MERGE_REQUEST_ID
 
 netlify:production:
-  stage: deploy
-  image: "ghcr.io/williamjacksn/netlify-cli:12.2.9"
-  needs:
-    - build
+  extends: .netlify
   script:
     - netlify deploy --dir public --prod
   rules:
