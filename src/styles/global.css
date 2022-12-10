@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+a {
+  @apply text-yuki hover:text-yuki-dark active:underline focus:underline;
+}

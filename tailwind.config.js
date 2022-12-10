@@ -5,7 +5,12 @@ module.exports = {
     './src/components/**/*.{js,jsx,ts,tsx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'yuki': '#aa00ff',
+        'yuki-dark': '#7c00c8',
+      }
+    },
   },
   plugins: [],
 }
