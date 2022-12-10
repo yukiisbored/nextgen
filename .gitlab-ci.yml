@@ -12,22 +12,32 @@ cache:
     - .cache/
     - public/
 
-npm:install:
+build:
   stage: build
-  script:
+  before_script:
     - npm ci
+  script:
+    - npm run build
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_MERGE_REQUEST_ID
 
-pages:
+netlify:preview:
   stage: deploy
+  image: "ghcr.io/williamjacksn/netlify-cli:12.2.9"
   needs:
-    - npm:install
+    - build
   script:
-    - npm run build
-  artifacts:
-    paths:
-      - public
+    - netlify deploy --dir public
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+
+netlify:production:
+  stage: deploy
+  image: "ghcr.io/williamjacksn/netlify-cli:12.2.9"
+  needs:
+    - build
+  script:
+    - netlify deploy --dir public --prod
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
