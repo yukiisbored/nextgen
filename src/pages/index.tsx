@@ -1,5 +1,5 @@
-import * as React from "react"
-import type { HeadFC, PageProps } from "gatsby"
+import * as React from "react";
+import type { HeadFC, PageProps } from "gatsby";
 import About from "../components/about";
 import Seo from "../components/seo";
 import { StaticImage } from "gatsby-plugin-image";
@@ -18,7 +18,7 @@ const links = [
 
 const circleStyle = {
   background: `url(${circleImage}) no-repeat center center`,
-}
+};
 
 const IndexPage: React.FC<PageProps> = () => {
   return (
@@ -36,14 +36,18 @@ const IndexPage: React.FC<PageProps> = () => {
       <div className="flex flex-col mt-12 md:mt-24">
         <header className="text-center">
           <h1 className="font-bold text-7xl">Yuki Langley</h1>
-          <p className="font-medium text-2xl mt-4">Your friendly neighborhood hacker</p>
+          <p className="font-medium text-2xl mt-4">
+            Your friendly neighborhood hacker
+          </p>
         </header>
 
         <section className="mt-12 text-center">
           <h2 className="hidden">Links</h2>
           <ul>
             {links.map(({ href, text }) => (
-              <li key={href} className="font-bold text-4xl inline-block m-2"><a href={href}>{text}</a></li>
+              <li key={href} className="font-bold text-4xl inline-block m-2">
+                <a href={href}>{text}</a>
+              </li>
             ))}
           </ul>
         </section>
@@ -53,9 +57,9 @@ const IndexPage: React.FC<PageProps> = () => {
         </section>
       </div>
     </main>
-  )
-}
+  );
+};
 
-export default IndexPage
+export default IndexPage;
 
-export const Head: HeadFC = () => <Seo/>
+export const Head: HeadFC = () => <Seo />;

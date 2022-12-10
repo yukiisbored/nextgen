@@ -2,7 +2,19 @@ import * as React from "react";
 import useSiteMetadata from "../hooks/use-site-metadata";
 import favicon from "../images/favicon.png";
 
-export default function SEO({ title, description, image, type, pathname }: { title?: string, description?: string, image?: string, type?: string, pathname?: string }) {
+export default function SEO({
+  title,
+  description,
+  image,
+  type,
+  pathname,
+}: {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: string;
+  pathname?: string;
+}) {
   const {
     siteUrl,
     author,
