@@ -1,7 +1,7 @@
 import * as React from "react"
 import type { HeadFC, PageProps } from "gatsby"
-import characterImage from "../images/character.png";
 import About from "../components/about";
+import { StaticImage } from "gatsby-plugin-image";
 
 const links = [
   { href: "mailto:hi@yukiisbo.red", text: "Email" },
@@ -18,11 +18,12 @@ const IndexPage: React.FC<PageProps> = () => {
   return (
     <main className="flex flex-col md:flex-row p-4 md:p-12">
       <div className="flex-none mx-auto md:pr-6">
-        <img
-          src={characterImage}
+        <StaticImage
+          src="../images/character.png"
           alt="Drawing of my character by Luciel Teo"
-          width="994px" height="1536px"
-          className="filter drop-shadow-lg w-auto h-auto md:h-screen"
+          className="filter drop-shadow-lg md:h-screen"
+          width={640}
+          objectFit="scale-down"
         />
       </div>
 
