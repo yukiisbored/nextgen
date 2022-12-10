@@ -3,6 +3,7 @@ import type { HeadFC, PageProps } from "gatsby"
 import About from "../components/about";
 import Seo from "../components/seo";
 import { StaticImage } from "gatsby-plugin-image";
+import circleImage from "../images/circle.svg";
 
 const links = [
   { href: "mailto:hi@yukiisbo.red", text: "Email" },
@@ -15,20 +16,24 @@ const links = [
   { href: "https://yukiisbored.itch.io", text: "itch.io" },
 ];
 
+const circleStyle = {
+  background: `url(${circleImage}) no-repeat center center`,
+}
+
 const IndexPage: React.FC<PageProps> = () => {
   return (
-    <main className="flex flex-col md:flex-row p-4 md:p-12">
-      <div className="flex-none mx-auto md:pr-6">
+    <main className="flex flex-col md:flex-row p-4 mx-auto max-w-5xl">
+      <div className="flex-none mx-auto md:mr-12" style={circleStyle}>
         <StaticImage
           src="../images/character.png"
           alt="Drawing of my character by Luciel Teo"
           className="filter drop-shadow-lg md:h-screen"
-          width={640}
+          width={400}
           objectFit="scale-down"
         />
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col mt-12 md:mt-24">
         <header className="text-center">
           <h1 className="font-bold text-7xl">Yuki Langley</h1>
           <p className="font-medium text-2xl mt-4">Your friendly neighborhood hacker</p>
