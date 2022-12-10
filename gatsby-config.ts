@@ -3,6 +3,10 @@ import type { GatsbyConfig } from "gatsby"
 const config: GatsbyConfig = {
   siteMetadata: {
     title: "yukiisbo.red",
+    author: "Yuki Langley",
+    description: "The personal website of a computer hobbyist dork",
+    type: "website",
+    image: "/profile.png",
     siteUrl: "https://yukiisbo.red",
   },
   // More easily incorporate content into your pages through automatic TypeScript type generation and better GraphQL IntelliSense.

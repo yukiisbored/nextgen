@@ -1,6 +1,7 @@
 import * as React from "react"
 import type { HeadFC, PageProps } from "gatsby"
 import About from "../components/about";
+import Seo from "../components/seo";
 import { StaticImage } from "gatsby-plugin-image";
 
 const links = [
@@ -52,4 +53,4 @@ const IndexPage: React.FC<PageProps> = () => {
 
 export default IndexPage
 
-export const Head: HeadFC = () => <title>Home Page</title>
+export const Head: HeadFC = () => <Seo/>
