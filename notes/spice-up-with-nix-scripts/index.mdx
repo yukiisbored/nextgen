@@ -1,0 +1,388 @@
+---
+title: "Spice up with Nix: Scripts with magical dependencies"
+date: "2021-08-09"
+slug: "spice-up-with-nix-scripts"
+description: "In this article, we explore how Nix can make it easier to share and run scripts without having to deal with the pain of installing dependencies."
+---
+
+I wrote this cool script which shows you a list of letters and their
+frequency in English.
+
+Check it!
+
+```python
+#!/usr/bin/env python3
+
+import requests                # Required to communicate via HTTP
+import pandas                  # Required to mangle with spreadsheets
+from bs4 import BeautifulSoup  # Required to parse HTML
+
+# Let's download the Letter frequency page from Wikipedia
+r = requests.get('https://en.wikipedia.org/wiki/Letter_frequency')
+assert r.status_code == 200
+
+# Use BeautifulSoup to parse HTML
+s = BeautifulSoup(r.text, 'html.parser')
+
+# Find the last table in the page
+res = str(s.findAll('table', {'class': 'wikitable'})[-1])
+
+# Let's convert that HTML table to a Pandas DataFrame
+res = pandas.read_html(res)[0]
+
+# We're only interested in English and the first 25 letters.
+res = res[['Letter', 'English']][0:26]
+
+# Properly handle the percentage in the table
+res['English'] = res['English'].str.rstrip('%').astype('float') / 100.0
+
+# Sort it
+res = res.sort_values(by='English', ascending=False)
+
+# Show it to the user
+print(res)
+```
+
+Cool, right?
+
+Oh, you don't have Python on your machine?
+
+Maybe, you don't have the libraries it requires like [requests](https://docs.python-requests.org/en/master/),
+[pandas](https://pandas.pydata.org/), and [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/).
+
+Ah, it doesn't run on your machine because you only have a different
+version of those libraries?
+
+# Instant runtime environments for scripts with Nix
+
+> If you don't have Nix installed on your machine, [install it now](https://nixos.org/download.html)!
+>
+> It won't break your system, I promise!
+>
+> As of writing, Nix runs well on macOS and Linux.
+
+Nix can be used to setup a temporary runtime environment with all of
+the dependencies which your script need.
+
+Simply use `nix-shell` as an interpreter in the shebang (`#!`) of your script.
+
+Using the script I've written above instead of using Python which is
+installed on the machine:
+
+```python
+#!/usr/bin/env python3
+```
+
+Replace with `nix-shell` and then give a list of packages to `nix-shell`.
+
+```python
+#! /usr/bin/env nix-shell
+#! nix-shell -i python -p python38 python38Packages.requests python38Packages.beautifulsoup4 python38Packages.pandas
+#! nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/tags/21.05.tar.gz
+```
+
+Let's break it down on what each line means!
+
+```python
+#! /usr/bin/env nix-shell
+```
+
+The first line simply tells your shell to use nix-shell as the
+interpreter for this script, nothing new here. Not that different how
+Python scripts are executed!
+
+```python
+#! nix-shell -i python -p python38 python38Packages.requests python38Packages.beautifulsoup4 python38Packages.pandas
+```
+
+This line seems scary but no worries. We are simply passing arguments
+to `nix-shell`.
+
+- `-i python` tells Nix which interpreter to use. In this case, we're
+  using `python`.
+- `-p python38 python38Packages...` tells Nix which packages are
+  required for this script.
+
+It's not that different to a recipe.
+
+Instead of only containing instructions on what to do, with Nix, we
+are able to give a list of ingredients and what to use in order to
+perform the instructions!
+
+```python
+#! nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/tags/21.05.tar.gz
+```
+
+This line looks scary but no worries, it's simple.
+
+We're telling Nix which version of the [Nix packages collection
+(nixpkgs)](https://github.com/NixOS/nixpkgs) to use. In this case, we are using version 21.05.
+
+This is how we can pin our dependencies to ensure the person who are
+running the script are running the exact version of the dependencies
+that I works on my machine.
+
+This also ensures that even if you read this 5 or even 10 years in the
+future, the script will still run with the same set of dependencies.
+
+So, here's the final script after we spice it up with Nix:
+
+```python
+#! /usr/bin/env nix-shell
+#! nix-shell -i python -p python38 python38Packages.requests python38Packages.beautifulsoup4 python38Packages.pandas
+#! nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/tags/21.05.tar.gz
+
+import requests                # Required to communicate via HTTP
+import pandas                  # Required to mangle with spreadsheets
+from bs4 import BeautifulSoup  # Required to parse HTML
+
+# Let's download the Letter frequency page from Wikipedia
+r = requests.get('https://en.wikipedia.org/wiki/Letter_frequency')
+assert r.status_code == 200
+
+# Use BeautifulSoup to parse HTML
+s = BeautifulSoup(r.text, 'html.parser')
+
+# Find the last table in the page
+res = str(s.findAll('table', {'class': 'wikitable'})[-1])
+
+# Let's convert that HTML table to a Pandas DataFrame
+res = pandas.read_html(res)[0]
+
+# We're only interested in English and the first 25 letters.
+res = res[['Letter', 'English']][0:26]
+
+# Properly handle the percentage in the table
+res['English'] = res['English'].str.rstrip('%').astype('float') / 100.0
+
+# Sort it
+res = res.sort_values(by='English', ascending=False)
+
+# Show it to the user
+print(res)
+```
+
+Only by changing that single line to three lines, this script will now
+run on any machine with Nix installed and it will automagically
+resolve the dependencies magically!
+
+```python
+$ head -n3 cool-script.py
+#! /usr/bin/env nix-shell
+#! nix-shell -i python -p python38 python38Packages.requests python38Packages.beautifulsoup4 python38Packages.pandas
+#! nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/tags/21.05.tar.gz
+$ ./cool-script.py
+these 85 paths will be fetched (132.87 MiB download, 693.09 MiB unpacked):
+  /nix/store/0b90d74742wl9vpy0vpd89k6cks9xvd9-bash-interactive-4.4-p23-man
+  ...
+  /nix/store/zsh6dmqlp15yzj3mgq3zv212waz12lbk-python3.8-urllib3-1.26.4
+copying path '/nix/store/lp6ccpip5ygq0k813gyb9m4iashzk2r0-bash-interactive-4.4-p23-doc' from 'https://hydra.iohk.io'...
+...
+copying path '/nix/store/4dlhsl4kxp9p632mbv1rcq9kjc0y6zdy-stdenv-linux' from 'https://hydra.iohk.io'...
+   Letter  English
+4       e  0.12702
+19      t  0.09056
+0       a  0.08167
+14      o  0.07507
+8       i  0.06966
+13      n  0.06749
+18      s  0.06327
+7       h  0.06094
+17      r  0.05987
+3       d  0.04253
+11      l  0.04025
+2       c  0.02782
+20      u  0.02758
+12      m  0.02406
+22      w  0.02360
+5       f  0.02228
+6       g  0.02015
+24      y  0.01974
+15      p  0.01929
+1       b  0.01492
+21      v  0.00978
+10      k  0.00772
+9       j  0.00153
+23      x  0.00150
+16      q  0.00095
+25      z  0.00074
+```
+
+As you can see, Nix will magically prepare a temporary environment
+with the dependencies for your script.
+
+Wait, does this mean Nix has installed those dependencies and Python?
+
+```python
+$ python3
+Python 3.8.9 (default, Apr  2 2021, 11:20:07)
+[GCC 10.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import requests
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ModuleNotFoundError: No module named 'requests'
+>>> import pandas
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ModuleNotFoundError: No module named 'pandas'
+>>> import bs4
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ModuleNotFoundError: No module named 'bs4'
+>>>
+```
+
+As you can see, it didn't alter your system. Your system is safe.
+
+# Only Python? Nope.
+
+This is not limited to only Python. You can use it with everything.
+
+You want to use it in a shell script which require programs to be
+present on the system? No problem.
+
+```shell
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p gnat mktemp
+#! nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/tags/21.05.tar.gz
+
+# Make a temp folder
+WORKDIR=$(mktemp -d)
+
+# Go to the temp directory
+pushd "${WORKDIR}"
+
+# Write some code
+cat > hello.adb <<EOF
+with Text_IO; use Text_IO;
+procedure hello is
+begin
+   Put_Line("Hello, world!");
+end hello;
+EOF
+
+# Compile it with GNAT
+gnatmake hello.adb
+
+# Run it
+./hello
+
+# Go back to the previous directory
+popd
+
+# Copy the executable
+cp "${WORKDIR}/hello" ./hello
+
+# Remove the temp folder
+rm -rf "${WORKDIR}"j
+```
+
+```shell-session
+$ ./cool.sh
+these 9 paths will be fetched (46.63 MiB download, 226.41 MiB unpacked):
+  /nix/store/1977rsramab0ks7bk3fxjd91kf1ddxy1-libmpc-1.2.1
+  ...
+  /nix/store/v07f9gbkizyfcz98ssyhbq5jr6x823lm-gmp-6.2.1
+copying path '/nix/store/by026wm1s9phidfb96l5gcxyylly9j5y-expand-response-params' from 'https://hydra.iohk.io'...
+...
+copying path '/nix/store/a7y4ng9g8jn1vm5p6l34nbg8ns5ml7f2-gnat-wrapper-9.3.0' from 'https://cache.nixos.org'...
+/run/user/1000/tmp.Q6gesiZ73k ~
+gcc -c -I/nix/store/9b5w72pds7z3mj2bplx97yn9vpz5x0zl-gnat-9.3.0/lib/gcc/x86_64-unknown-linux-gnu/9.3.0/adainclude -I/nix/store/9b5w72pds7z3mj2bplx97yn9vpz5x0zl-gnat-9.3.0/lib/gcc/x86_64-unknown-linux-gnu/9.3.0/adalib hello.adb
+/nix/store/a7y4ng9g8jn1vm5p6l34nbg8ns5ml7f2-gnat-wrapper-9.3.0/bin/gnatbind -I/nix/store/9b5w72pds7z3mj2bplx97yn9vpz5x0zl-gnat-9.3.0/lib/gcc/x86_64-unknown-linux-gnu/9.3.0/adainclude -I/nix/store/9b5w72pds7z3mj2bplx97yn9vpz5x0zl-gnat-9.3.0/lib/gcc/x86_64-unknown-linux-gnu/9.3.0/adalib -x hello.ali
+/nix/store/a7y4ng9g8jn1vm5p6l34nbg8ns5ml7f2-gnat-wrapper-9.3.0/bin/gnatlink hello.ali
+Hello, world!
+~
+$ ls ./hello
+./hello
+$ ./hello
+Hello, world!
+```
+
+Did Nix just prepare an environment with the GNU Ada Toolchain and
+then run a script which compile an Ada program which runs?
+
+Yes, it did.
+
+What about something niche?
+
+```haskell
+#! /usr/bin/env nix-shell
+#! nix-shell -i runhaskell -p ghc
+#! nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/tags/21.05.tar.gz
+
+nums :: [Int]
+nums = [1780, 1693, 1830, 1756, 1858, 1868, 1968, 1809, 1996, 1962, 1800, 1974,
+        1805, 1795,  170, 1684, 1659, 1713, 1848, 1749, 1717, 1734,  956, 1782,
+        1834, 1785, 1786, 1994, 1652, 1669, 1812, 1954, 1984, 1665, 1987, 1562,
+        2004, 2010, 1551,  961, 1854, 2005, 1883, 1965,  475, 1776, 1791,  262,
+        1912, 1227, 1486, 1989, 1857,  825, 1683, 1991, 1875, 1982, 1654, 1767,
+        1673, 1973, 1886, 1731, 1745, 1770, 1995, 1721, 1662, 1679, 1783, 1999,
+        1889, 1746, 1902, 2003, 1698, 1794, 1798, 1951, 1953, 2007, 1899, 1658,
+        1705,   62, 1819, 1708, 1666, 2006, 1763, 1732, 1613, 1841, 1747, 1489,
+        1845, 2008, 1885, 2002, 1735, 1656, 1771, 1950, 1704, 1737, 1748, 1759,
+        1802, 2000, 1955, 1738, 1761, 1765, 1853, 1900, 1709, 1979, 1911, 1775,
+        1813, 1949, 1966, 1774, 1977, 1757, 1992, 2009, 1956, 1840, 1988, 1985,
+        1993, 1718, 1976, 1078, 1997, 1897, 1792, 1790, 1801, 1871, 1727, 1700,
+        1485,  942, 1686, 1859, 1676,  802, 1952, 1998, 1961, 1844, 1808, 1703,
+        1980, 1766, 1963, 1849, 1670, 1716, 1957, 1660, 1816, 1762, 1829,  526,
+         359, 2001, 1874, 1778, 1873, 1511, 1810, 1699, 1970, 1690, 1978, 1892,
+        1691, 1781, 1777, 1975, 1967, 1694, 1969, 1959, 1910, 1826, 1672, 1655,
+        1839, 1986, 1872, 1983, 1981, 1972, 1772, 1760]
+
+solution :: [Int] -> Int
+solution xs =
+  head
+    [ x * y * z
+      | x <- xs,
+        y <- xs,
+        z <- xs,
+        x + y + z == 2020
+    ]
+main :: IO ()
+main = print $ solution nums
+```
+
+```shell-session
+$ ./day1-part2-aoc.hs
+these 4 paths will be fetched (138.01 MiB download, 1870.79 MiB unpacked):
+  /nix/store/1pfdb37qm067ib7dnj5arbhl5q2kam3l-libffi-3.3-dev
+  /nix/store/55ysfrn085k1lsya0c2msm6npi7x6ihh-ghc-8.10.4-doc
+  /nix/store/f2psw0phlmp7h7gk14rfsqdmjz4d1arb-gmp-6.2.1-dev
+  /nix/store/mcm0wvsqcwqaxsp8fnwmknmpi0a196w6-ghc-8.10.4
+copying path '/nix/store/55ysfrn085k1lsya0c2msm6npi7x6ihh-ghc-8.10.4-doc' from 'https://cache.nixos.org'...
+copying path '/nix/store/f2psw0phlmp7h7gk14rfsqdmjz4d1arb-gmp-6.2.1-dev' from 'https://hydra.iohk.io'...
+copying path '/nix/store/1pfdb37qm067ib7dnj5arbhl5q2kam3l-libffi-3.3-dev' from 'https://hydra.iohk.io'...
+copying path '/nix/store/mcm0wvsqcwqaxsp8fnwmknmpi0a196w6-ghc-8.10.4' from 'https://cache.nixos.org'...
+200878544
+```
+
+As you can see, it works for any language. Simply check if your
+favorite language and libraries are packaged: [search.nixos.org](https://search.nixos.org/packages).
+
+# Closing
+
+This is the first in a series of article that I will be publishing
+more regularly.
+
+It is based of a mega draft I have written about Nix which was written
+in the same style of [the Docker article](https://notes.yukiisbo.red/posts/2021/03/Surviving_Docker.html).
+
+However, due to the massive differences in Nix vs other existing
+package managers, it has grown to a rather massive and daunting draft
+(1787 lines, 7265 words, 68436 characters).
+
+Because it would be a massive article and a huge turn off for a lot of
+people due to its size, I will be breaking it down into smaller
+bite-sized posts like this one.
+
+I will start with practical examples on how Nix can help in a lot of
+real-world situations. In fact, I have delivered a couple of real
+world projects on production with Nix and at work, we are now happily
+using Nix by default.
+
+Once that's done, we will dive head first and see how Nix works. I
+hope you'll find it interesting and this has been one of the longest
+writing projects that I've done with so much research!
+
+Thanks for reading and I hope you'll be there on the next one!

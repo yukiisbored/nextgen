@@ -1,0 +1,1316 @@
+---
+title: "Spice up with Nix: The Functional Software Deployment Model"
+date: "2022-01-26"
+slug: "spice-up-with-nix-functional-software-deployment"
+description: "In this article, we discuss the foundation of Nix and how does its radically different ideas solve the issues present in existing solutions."
+---
+
+Unlike traditional package managers, Nix is a package manager which
+doesn't directly modify your system.
+
+Software which are managed by Nix are stored in a component store
+located in `/nix/store/`, instead of modifying `/usr/`.
+
+But what is a component, exactly? Let's take a peek inside the
+component store.
+
+```shell-session
+$ ls -l /nix/store | head
+total 112536
+-r--r--r--  1 root root     1542 janv.  1  1970 001gp43bjqzx60cg345n2slzg7131za8-nix-nss-open-files.patch
+-r--r--r--  1 root root       80 janv.  1  1970 003y7nllp3cxm5ww1q6xmygi81hhzgzn-dap-mode-recipe
+-r--r--r--  1 root root     6619 janv.  1  1970 006s9a9y6iiqmsv7wm2ncm3m5lwhkv3i-libgccjit-10.3.0.drv
+-r--r--r--  1 root root     3853 janv.  1  1970 007nl7dl9inal3xkca396ssxs416ggrd-python3.8-networkx-2.6.3.drv
+-r--r--r--  1 root root     1670 janv.  1  1970 00nkk559kqmp7wcyq4vcvxhhk1rcjind-net-tools-2.10.drv
+-r--r--r--  1 root root      437 janv.  1  1970 00qr10y7z2fcvrp9b2m46710nkjvj55z-update-autotools-gnu-config-scripts.sh
+-r--r--r--  1 root root     2785 janv.  1  1970 00xlf60cvvppcn845dk30ra5kmmihspb-sqlite-simple-0.4.18.0.tar.gz.drv
+-r--r--r--  1 root root    10225 janv.  1  1970 011y6iy6lh7qdwxwmm6yg3nslbxkcbkr-tdigest-0.2.1.1.drv
+-r--r--r--  1 root root     1747 janv.  1  1970 0140ckl854jk2lnr65khhxjv3vwcvycj-docbook-xml-4.2.drv
+```
+
+Inside the component store, you'll encounter a bunch of files and
+folders. You start to question, "what's up with the hashes?".
+
+Before that, let's see the contents of a random component.
+
+In the Nix store, you find a folder named with something that you
+recognize.
+
+```shell-session
+$ ls /nix/store/ | grep 'python3-3.9.6$'
+5bh6rpya1ar6l49vrhx1rg58dsa42906-python3-3.9.6
+$ ls -l /nix/store/5bh6rpya1ar6l49vrhx1rg58dsa42906-python3-3.9.6
+total 20
+dr-xr-xr-x 2 root root 4096 janv.  1  1970 bin
+dr-xr-xr-x 3 root root 4096 janv.  1  1970 include
+dr-xr-xr-x 4 root root 4096 janv.  1  1970 lib
+dr-xr-xr-x 2 root root 4096 janv.  1  1970 nix-support
+dr-xr-xr-x 4 root root 4096 janv.  1  1970 share
+$ ls -l /nix/store/5bh6rpya1ar6l49vrhx1rg58dsa42906-python3-3.9.6/bin
+total 36
+lrwxrwxrwx 1 root root     8 janv.  1  1970 2to3 -> 2to3-3.9
+-r-xr-xr-x 1 root root   148 janv.  1  1970 2to3-3.9
+lrwxrwxrwx 1 root root     7 janv.  1  1970 idle -> idle3.9
+lrwxrwxrwx 1 root root     7 janv.  1  1970 idle3 -> idle3.9
+-r-xr-xr-x 1 root root   146 janv.  1  1970 idle3.9
+lrwxrwxrwx 1 root root     8 janv.  1  1970 pydoc -> pydoc3.9
+lrwxrwxrwx 1 root root     8 janv.  1  1970 pydoc3 -> pydoc3.9
+-r-xr-xr-x 1 root root   131 janv.  1  1970 pydoc3.9
+lrwxrwxrwx 1 root root     9 janv.  1  1970 python -> python3.9
+lrwxrwxrwx 1 root root     9 janv.  1  1970 python3 -> python3.9
+-r-xr-xr-x 1 root root 16392 janv.  1  1970 python3.9
+-r-xr-xr-x 1 root root  3290 janv.  1  1970 python3.9-config
+lrwxrwxrwx 1 root root    16 janv.  1  1970 python3-config -> python3.9-config
+lrwxrwxrwx 1 root root    16 janv.  1  1970 python-config -> python3.9-config
+```
+
+Wait, this looks similar to a prefix. It has similar structure to
+`/usr/` but it only contains Python 3.9.6, nothing else.
+
+If you check the libraries of the Python binary, it simply refers to
+library files stored inside other components.
+
+```shell-session
+$ ldd /nix/store/5bh6rpya1ar6l49vrhx1rg58dsa42906-python3-3.9.6/bin/python3.9
+    linux-vdso.so.1 (0x00007ffce636f000)
+    libpython3.9.so.1.0 => /nix/store/5bh6rpya1ar6l49vrhx1rg58dsa42906-python3-3.9.6/lib/libpython3.9.so.1.0 (0x00007fb1b3fe9000)
+    libpthread.so.0 => /nix/store/z56jcx3j1gfyk4sv7g8iaan0ssbdkhz1-glibc-2.33-56/lib/libpthread.so.0 (0x00007fb1b3fc9000)
+    libdl.so.2 => /nix/store/z56jcx3j1gfyk4sv7g8iaan0ssbdkhz1-glibc-2.33-56/lib/libdl.so.2 (0x00007fb1b3fc4000)
+    libcrypt.so.1 => /nix/store/z56jcx3j1gfyk4sv7g8iaan0ssbdkhz1-glibc-2.33-56/lib/libcrypt.so.1 (0x00007fb1b3f8a000)
+    libncursesw.so.6 => /nix/store/72vdginhi637lxyii5fnpmvf4jzc4gbk-ncurses-6.2/lib/libncursesw.so.6 (0x00007fb1b3f18000)
+    libutil.so.1 => /nix/store/z56jcx3j1gfyk4sv7g8iaan0ssbdkhz1-glibc-2.33-56/lib/libutil.so.1 (0x00007fb1b3f11000)
+    libm.so.6 => /nix/store/z56jcx3j1gfyk4sv7g8iaan0ssbdkhz1-glibc-2.33-56/lib/libm.so.6 (0x00007fb1b3dd0000)
+    libgcc_s.so.1 => /nix/store/z56jcx3j1gfyk4sv7g8iaan0ssbdkhz1-glibc-2.33-56/lib/libgcc_s.so.1 (0x00007fb1b3db6000)
+    libc.so.6 => /nix/store/z56jcx3j1gfyk4sv7g8iaan0ssbdkhz1-glibc-2.33-56/lib/libc.so.6 (0x00007fb1b3bf1000)
+    /nix/store/z56jcx3j1gfyk4sv7g8iaan0ssbdkhz1-glibc-2.33-56/lib/ld-linux-x86-64.so.2 => /lib64/ld-linux-x86-64.so.2 (0x00007fb1b43cb000)
+```
+
+So, with the massive hype around Nix, it's just another package
+manager which installs each software into their own prefixes like
+[Homebrew](https://brew.sh/)?
+
+Well, not really.
+
+# The one simple trick
+
+Let's go back to the previous question: why are hashes used as a
+prefix?
+
+Do you recall [the issues](https://notes.yukiisbo.red/posts/2021/09/Spice_up_with_Nix_Traditional_Software_Deployment.html) with the simple Python script we made?
+
+- The problem with different systems having software installed in
+  different places.
+- The problem with different versions or variants of the same
+  software.
+
+Nix solves the issues mentioned above by storing components in a
+deterministic path which are prefixed with a cryptographic hash.
+
+The hash itself is generated based on the inputs (i.e source code,
+build flags, dependencies) used to build the component.
+
+If any of the inputs changed (ex. one of its dependencies was
+updated), the hash will be different which will result in a different
+path.
+
+This simple trick allows for multiple variants of the same software to
+be installed along with their dependencies being exact and
+deterministic to the ones used when they're built.
+
+# Getting your hands dirty with Nix
+
+> **Follow me!**
+>
+> You can follow along the demonstrations shown in the article.
+>
+> If you're running any Linux distribution on a 64-bit Intel/AMD
+> machine, you'll see that the paths shown in the demonstrations will be
+> the same.
+>
+> If you're using another operating system and/or another architecture,
+> the paths will be different. However, you can still follow along!
+>
+> Have fun!
+
+To demonstrate the deterministic and exact nature of Nix, let's
+package a piece of software with Nix.
+
+We could package [GNU Hello](https://www.gnu.org/software/hello/) like everyone else but I find it rather
+overused and doesn't demonstrate Nix's strengths.
+
+Personally, I'm in store for something complex that would make package
+maintainers cry.
+
+So, I made a piece of software called ["YouTube Launcher"](https://git.yukiisbo.red/yuki/youtube-launcher) which
+provides a simple user interface to watch YouTube videos without a web
+browser!
+
+```python
+#!/usr/bin/env python
+
+from urllib.parse import urlparse
+
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QMessageBox
+from PyQt5.QtCore import QProcess
+
+
+app = QApplication([])
+
+
+class Youtube(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        layout = QVBoxLayout()
+
+        self.textbox = QLineEdit('https://www.youtube.com/watch?v=fjuJgqrZSIk')
+        layout.addWidget(self.textbox)
+
+        button = QPushButton('Watch')
+        button.clicked.connect(self.__watch)
+        layout.addWidget(button)
+
+        self.setLayout(layout)
+
+        self.setWindowTitle("YouTube Launcher");
+        self.resize(512, 100)
+
+        self.show()
+
+    def __watch(self):
+        url = urlparse(self.textbox.text())
+
+        if (url.netloc.lower() in ('www.youtube.com', 'youtube.com') and
+            url.path == '/watch' and url.query.startswith('v=') and
+            len(url.query) > 2):
+            QProcess().startDetached('mpv', [url.geturl()])
+            app.exit()
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("The URL is not a valid YouTube video URL")
+            msg.setWindowTitle("Error")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec()
+
+
+def main():
+    window = Youtube()
+    app.exec()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+You don't need to save the snippet above, it shown here only for
+reference. The entire source code is available at
+[git.yukiisbo.red/yuki/youtube-launcher](https://git.yukiisbo.red/yuki/youtube-launcher/).
+
+So, what are the pain points of this program?
+
+- It is written in Python 3.
+- It uses Qt 5 via the PyQt5 library.
+- It executes mpv which requires YouTube support to be enabled.
+
+Much more complex than our previous Python script.
+
+So, here's the Nix file to build and package the software:
+
+```nix
+let
+  pkgs = import (builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/60cce7e5e1fdf62421ef6d4184ee399b46209366.tar.gz";
+    sha256 = "100xrb925cana1kfd0c7gwkjjalq891vfgr0rn1gl9j8gp3l3gx6";
+  }) {};
+
+  mpv = pkgs.wrapMpv pkgs.mpv-unwrapped { youtubeSupport = true; };
+in
+pkgs.python38Packages.buildPythonApplication {
+  pname = "youtube-launcher";
+  version = "0.1";
+
+  src = builtins.fetchTarball {
+    url = "https://git.yukiisbo.red/yuki/youtube-launcher/-/archive/0.1/youtube-launcher-0.1.tar.gz";
+    sha256 = "043sj6p47s8jk9sj9qnbshzjvxix1pfwzkpwbc5f9dqk5yxgnq13";
+  };
+
+  buildInputs = [ mpv ];
+  propagatedBuildInputs = with pkgs.python38Packages; [ pyqt5 ];
+  nativeBuildInputs = with pkgs.libsForQt5.qt5; [ qtbase wrapQtAppsHook ];
+
+  postPatch = ''
+    substituteInPlace youtube_launcher.py \
+      --replace "'mpv'" "'${mpv}/bin/mpv'"
+  '';
+
+  preFixup = ''
+    makeWrapperArgs+=("''${qtWrapperArgs[@]}")
+  '';
+}
+```
+
+To build, create an empty folder and save the snippet above as
+`default.nix` inside it.
+
+Now, run `nix-build` to build the package.
+
+```shell-session
+$ mkdir -p experiments/youtube
+$ cd experiments/youtube
+$ ls
+$ nano default.nix
+$ nix-build .
+these 4 derivations will be built:
+  /nix/store/vv23rn1fqfx2b7sb6n8z3qpqi9r1m5vw-builder.pl.drv
+  ...
+  /nix/store/5ia4ma9b96kg620k7k0w9xhgqajd828n-youtube-launcher-0.1.drv
+these 335 paths will be fetched (204.35 MiB download, 984.31 MiB unpacked):
+  /nix/store/03bbr1dba98kzmx364yv4dwhvssc1g1w-libxkbcommon-1.3.0
+  ...
+  /nix/store/zpbhr2v6x7dijfvw3w9xpbrvhp9z6gzw-hook
+copying path '/nix/store/6c5x1d03c5323lsbr2il8w1gwf83cqjj-python-remove-bin-bytecode-hook' from 'https://hydra.iohk.io'...
+...
+copying path '/nix/store/an3gwsbssydlcwlafznv0lisq7c8hy5p-mpv-0.33.1' from 'https://cache.nixos.org'...
+building '/nix/store/vv23rn1fqfx2b7sb6n8z3qpqi9r1m5vw-builder.pl.drv'...
+building '/nix/store/sd5x742zvdhrm0ysx4xivyaf51qm98w7-lua-5.2.4-env.drv'...
+created 12 symlinks in user environment
+building '/nix/store/7imvh7yyv754jjvaqd7cgvd196xcixsj-mpv-with-scripts-0.33.1.drv'...
+building '/nix/store/5ia4ma9b96kg620k7k0w9xhgqajd828n-youtube-launcher-0.1.drv'...
+...
+/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1
+$
+```
+
+It's built and the resulting component is stored inside
+`/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1` as
+indicated by the last line of `nix-build`.
+
+Now, you can run the software by running
+`./result/bin/youtube-launcher` inside the same folder as `default.nix`.
+
+```shell-session
+$ ls -l
+total 8
+-rw-rw-r-- 1 yuki yuki 1001 janv. 24 13:09 default.nix
+lrwxrwxrwx 1 yuki yuki   64 janv. 24 13:11 result -> /nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1
+$ ./result/bin/youtube-launcher
+```
+
+> **The OpenGL problem on non-NixOS**
+>
+> As of writing, if you're not running NixOS or macOS (untested), mpv
+> will fallback to software rendering as it fails to use any hardware
+> acceleration which results in poor performance.
+>
+> This is not entirely the fault of Nix / nixpkgs but rather due to how
+> hardware accelerated graphics works in Linux and other \*nix which uses
+> Linux DRI/Mesa architecture.
+>
+> The issue is currently tracked as [#62177](https://github.com/NixOS/nixpkgs/issues/9415) in nixpkgs. There are hacks
+> to workaround this issue, most notably the [nixGL](https://github.com/guibou/nixGL) wrapper.
+>
+> If you'd like to learn more about how hardware accelerated graphics
+> work, I recommend the [Wikipedia article on DRI](https://en.wikipedia.org/wiki/Direct_Rendering_Infrastructure).
+>
+> If you want to get your hands dirty, I challenge you to write a
+> program which obtains an OpenGL/Vulkan context and render a cube
+> without X11/GLX nor a Wayland compositor. Have fun! ;-)
+
+import nixdemo from "./nixdemo.webm";
+
+<video controls="controls">
+  <source src={nixdemo} type="video/webm" />
+  <p>Your browser does not support the video tag.</p>
+</video>
+
+It works and you can watch YouTube videos with it by copy-pasting a
+YouTube URL into the text box and click the "Watch" button. Awesome.
+
+But, why does it work?
+
+This is a rather tame Python script which does a lot of bad practices:
+
+- It assumes `python` is Python 3.
+- It assumes mpv is in `PATH` and is capable of playing YouTube videos.
+- It relies on Qt which requires native libraries.
+
+Let's take a peek at the binary.
+
+```shell-session
+$ cat ./result/bin/youtube-launcher
+#! /nix/store/kxj6cblcsd1qcbbxlmbswwrn89zcmgd6-bash-4.4-p23/bin/bash -e
+export PATH='/nix/store/4s0h5aawbap3xhldxhcijvl26751qrjr-python3-3.8.9/bin:/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1/bin:/nix/store/kv3wcr31ba5r2hglaz5d73mg084ld820-qtdeclarative-5.15.2-bin/bin:/nix/store/1p93bdjv1h6dqc7lbykj54mp7d64vl4c-python3.8-PyQt5-5.15.2/bin'${PATH:+':'}$PATH
+export PYTHONNOUSERSITE='true'
+export QT_PLUGIN_PATH='/nix/store/cgpka5n7m8l31i6j9f5b071l8alqzq6v-qtbase-5.15.2-bin/lib/qt-5.15.2/plugins'${QT_PLUGIN_PATH:+':'}$QT_PLUGIN_PATH
+export QT_PLUGIN_PATH='/nix/store/k5f31g4g5s7agb7yahlsi4w7jz15516x-qtsvg-5.15.2-bin/lib/qt-5.15.2/plugins'${QT_PLUGIN_PATH:+':'}$QT_PLUGIN_PATH
+export QT_PLUGIN_PATH='/nix/store/kv3wcr31ba5r2hglaz5d73mg084ld820-qtdeclarative-5.15.2-bin/lib/qt-5.15.2/plugins'${QT_PLUGIN_PATH:+':'}$QT_PLUGIN_PATH
+export QML2_IMPORT_PATH='/nix/store/kv3wcr31ba5r2hglaz5d73mg084ld820-qtdeclarative-5.15.2-bin/lib/qt-5.15.2/qml'${QML2_IMPORT_PATH:+':'}$QML2_IMPORT_PATH
+export QML2_IMPORT_PATH='/nix/store/9r1hhbk3r9jv9dcnd3z59jyjs1k08r8p-qtquickcontrols-5.15.2/lib/qt-5.15.2/qml'${QML2_IMPORT_PATH:+':'}$QML2_IMPORT_PATH
+export QT_PLUGIN_PATH='/nix/store/psvnd1d97brqwgw9c8qhw4l85nlvpn6y-qtwayland-5.15.2-bin/lib/qt-5.15.2/plugins'${QT_PLUGIN_PATH:+':'}$QT_PLUGIN_PATH
+export QML2_IMPORT_PATH='/nix/store/psvnd1d97brqwgw9c8qhw4l85nlvpn6y-qtwayland-5.15.2-bin/lib/qt-5.15.2/qml'${QML2_IMPORT_PATH:+':'}$QML2_IMPORT_PATH
+exec -a "$0" "/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1/bin/.youtube-launcher-wrapped"  "$@"
+```
+
+This is a wrapper which Nix generated to run the software we built.
+
+Everything in here uses the deterministic path generated by Nix which
+has the characteristic cryptographic hash prefix.
+
+As you can see, it defines various environment variables required to
+run the application such as `PATH` which includes the exact version of
+Python required along with a bunch of other variables to make Qt
+applications work.
+
+That last `exec` line executes our Python script, right?
+
+```shell-session
+$ cat /nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1/bin/.youtube-launcher-wrapped
+#!/nix/store/4s0h5aawbap3xhldxhcijvl26751qrjr-python3-3.8.9/bin/python3.8
+# -*- coding: utf-8 -*-
+import sys;import site;import functools;sys.argv[0] = '/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1/bin/youtube-launcher';functools.reduce(lambda k, p: site.addsitedir(p, k), ['/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1/lib/python3.8/site-packages','/nix/store/qldagg1vs1y4j36jnchbhqihjj68q9qd-python3.8-dbus-python-1.2.16/lib/python3.8/site-packages','/nix/store/wp81ms43wsvrc3qxnfx1bz3ksdyc756y-python3.8-PyQt5_sip-12.8.1/lib/python3.8/site-packages','/nix/store/1p93bdjv1h6dqc7lbykj54mp7d64vl4c-python3.8-PyQt5-5.15.2/lib/python3.8/site-packages'], site._init_pathinfo());
+import re
+import sys
+from youtube_launcher import main
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(main())
+```
+
+Nope, it's another wrapper written in Python generated by Nix.
+
+The shebang is now deterministic to the exact version of Python used
+for this program.
+
+The line with `import sys; import site;` defines the entire Python site
+path.
+
+If you are unfamiliar, in Python, the site path defines a list of
+paths where it can find Python libraries, similar to the `PATH`
+environment variable.
+
+With that in mind, the wrapper adds a bunch of path determistic paths
+to the runtime dependencies.
+
+In the end, it imported our main function and execute it.
+
+So, where is our script?
+
+Let's look deeper.
+
+```shell-session
+$ cat ./result/lib/python3.8/site-packages/youtube_launcher.py
+#!/usr/bin/env python
+
+from urllib.parse import urlparse
+
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QMessageBox
+from PyQt5.QtCore import QProcess
+
+
+app = QApplication([])
+...
+```
+
+There it is!
+
+Reading the source code, it's a bit different.
+
+```python
+...
+QProcess().startDetached('/nix/store/p7csiywv541jnvrgah93p7zjvq8lkwkq-mpv-with-scripts-0.33.1/bin/mpv', [url.geturl()])
+...
+```
+
+The line which executes mpv was changed to use the deterministic path
+for the mpv binary.
+
+While we're here, we can even ask Nix to tell us what are the direct
+runtime dependencies of the component:
+
+```shell-session
+$ nix-store --query --references ./result
+/nix/store/kxj6cblcsd1qcbbxlmbswwrn89zcmgd6-bash-4.4-p23
+/nix/store/4s0h5aawbap3xhldxhcijvl26751qrjr-python3-3.8.9
+/nix/store/1p93bdjv1h6dqc7lbykj54mp7d64vl4c-python3.8-PyQt5-5.15.2
+/nix/store/9r1hhbk3r9jv9dcnd3z59jyjs1k08r8p-qtquickcontrols-5.15.2
+/nix/store/cgpka5n7m8l31i6j9f5b071l8alqzq6v-qtbase-5.15.2-bin
+/nix/store/k5f31g4g5s7agb7yahlsi4w7jz15516x-qtsvg-5.15.2-bin
+/nix/store/kv3wcr31ba5r2hglaz5d73mg084ld820-qtdeclarative-5.15.2-bin
+/nix/store/wp81ms43wsvrc3qxnfx1bz3ksdyc756y-python3.8-PyQt5_sip-12.8.1
+/nix/store/cvwc3r4dcjjsa6vb50idlc4q171whvgl-python3.8-PyQt5-5.15.2-dev
+/nix/store/p7csiywv541jnvrgah93p7zjvq8lkwkq-mpv-with-scripts-0.33.1
+/nix/store/psvnd1d97brqwgw9c8qhw4l85nlvpn6y-qtwayland-5.15.2-bin
+/nix/store/qldagg1vs1y4j36jnchbhqihjj68q9qd-python3.8-dbus-python-1.2.16
+/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1
+```
+
+So, as demonstrated, the resulting built component uses deterministic
+paths for its runtime dependencies.
+
+However, Nix isn't the one doing the paths replacement and wrapping on
+its own.
+
+Instead, it is our Nix file which defines the build process that does
+all of the legwork to make this happen.
+
+```nix
+let
+  ...
+in
+pkgs.python38Packages.buildPythonApplication {
+  pname = "youtube-launcher";
+  version = "0.1";
+  ...
+}
+```
+
+The Python wrapper is done by `buildPythonApplication` function from
+the [Nix package collection](https://github.com/NixOS/nixpkgs) (nixpkgs) which we used to build our
+package.
+
+```nix
+let
+  ...
+in
+pkgs.python38Packages.buildPythonApplication {
+  ...
+  nativeBuildInputs = with pkgs.libsForQt5.qt5; [ ... wrapQtAppsHook ];
+  ...
+  preFixup = ''
+    makeWrapperArgs+=("''${qtWrapperArgs[@]}")
+  '';
+}
+```
+
+The Qt 5 wrapper is done by `wrapQtAppsHook` component from nixpkgs
+which we included as a dependency.
+
+Because we're using multiple wrappers, we need to add the Qt wrapper
+during the `preFixup` phase.
+
+Now, what about mpv?
+
+```nix
+let
+  ...
+  mpv = pkgs.wrapMpv pkgs.mpv-unwrapped { youtubeSupport = true; };
+in
+pkgs.python38Packages.buildPythonApplication {
+  ...
+  buildInputs = [ mpv ];
+  ...
+  postPatch = ''
+    substituteInPlace youtube_launcher.py \
+      --replace "'mpv'" "'${mpv}/bin/mpv'"
+  '';
+  ...
+}
+```
+
+First, we define a variable inside `let` to determine which exact
+version of mpv is required since we need YouTube support to be
+enabled.
+
+Then, we define it as a dependency for our package inside `buildInputs`.
+
+In the `postPatch` phase, we use `subtituteInPlace` to replace instances
+of `'mpv'` inside the `youtube_launcher.py` script with `'${mpv}/bin/mpv'`
+
+In the Nix expression language, `${mpv}` is string interpolation. In
+this case, it will be changed to the determinstic path of the mpv
+component.
+
+And there you go, with that one simple trick of using hashes, Nix
+ensures dependencies are deterministic on runtime.
+
+Making sure the binary builds of your software uses the same exact set
+of binaries when it was built.
+
+Still don't believe me?
+
+Let's update our package to use Python 3.9 and see what happens.
+
+With `default.nix` opened, replace all instances of `python38` with
+`python39` and then build with `nix-build`.
+
+```shell-session
+$ sed -i.orig 's/python38/python39/g' default.nix
+$ cat default.nix
+let
+  ...
+in
+pkgs.python39Packages.buildPythonApplication {
+  ...
+  propagatedBuildInputs = with pkgs.python39Packages; [ pyqt5 ];
+  ...
+}
+$ nix-build
+this derivation will be built:
+  /nix/store/p33jvlyqgfw3pg9yg16cygd4dczla0ap-youtube-launcher-0.1.drv
+these 18 paths will be fetched (17.11 MiB download, 93.61 MiB unpacked):
+  /nix/store/44l3f1rsghmympim9jbffgfxdcshiz5f-python3.9-pip-21.0.1
+  ...
+  /nix/store/y4j4k0l6w941wriprxz13dhvz896lw3m-tzdata-2020f
+copying path '/nix/store/76rqrmaxqb7pmrgd9zwbap983aarjidr-python-remove-tests-dir-hook' from 'https://cache.nixos.org'...
+...
+copying path '/nix/store/dkmbkkax4vqbmc6y1dqqhg9xi9yc23wj-python3.9-PyQt5-5.15.2-dev' from 'https://cache.nixos.org'...
+building '/nix/store/p33jvlyqgfw3pg9yg16cygd4dczla0ap-youtube-launcher-0.1.drv'...
+...
+/nix/store/prrc01g09l1pma21qndg835jfcsi6xb2-youtube-launcher-0.1
+$ ./result/bin/youtube-launcher
+```
+
+It still works and it uses Python 3.9.
+
+Also, the resulting path is now different instead of
+`/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1`, it
+is now
+`/nix/store/prrc01g09l1pma21qndg835jfcsi6xb2-youtube-launcher-0.1`
+because the input changed.
+
+When you check the runtime dependencies, only those which are related
+to Python are changed.
+
+```shell-session
+$ nix-store --query --references ./result
+/nix/store/9r1hhbk3r9jv9dcnd3z59jyjs1k08r8p-qtquickcontrols-5.15.2
+/nix/store/cgpka5n7m8l31i6j9f5b071l8alqzq6v-qtbase-5.15.2-bin
+/nix/store/kxj6cblcsd1qcbbxlmbswwrn89zcmgd6-bash-4.4-p23
+/nix/store/fn2kv4wn3n4kpv6sb96cp9hi65ra9zb1-python3-3.9.4
+/nix/store/k5f31g4g5s7agb7yahlsi4w7jz15516x-qtsvg-5.15.2-bin
+/nix/store/kv3wcr31ba5r2hglaz5d73mg084ld820-qtdeclarative-5.15.2-bin
+/nix/store/ndaj0cmm8j833y3fp346vbh9xmnsqwbp-python3.9-PyQt5-5.15.2
+/nix/store/xdd39p2zsgypr0cyiiqkzcg1bxsrdpp5-python3.9-PyQt5_sip-12.8.1
+/nix/store/dkmbkkax4vqbmc6y1dqqhg9xi9yc23wj-python3.9-PyQt5-5.15.2-dev
+/nix/store/p7csiywv541jnvrgah93p7zjvq8lkwkq-mpv-with-scripts-0.33.1
+/nix/store/psvnd1d97brqwgw9c8qhw4l85nlvpn6y-qtwayland-5.15.2-bin
+/nix/store/q0vfa5rm0y62knfhk582fzw2rlrzdmgg-python3.9-dbus-python-1.2.16
+/nix/store/prrc01g09l1pma21qndg835jfcsi6xb2-youtube-launcher-0.1
+```
+
+In addition, it uses the same exact Qt and mpv components as the
+Python 3.8 version.
+
+Thanks to the lack of filesystem isolation, you didn't download a
+different version of Qt nor mpv since it uses the same one.
+
+You can explore the resulting component on your own and use
+specialized tools like [diffoscope](https://diffoscope.org/). But, at the end of the day, you'll
+reach the same conclusion.
+
+Want to proof Nix's deterministic nature?
+
+Just revert back to the old version which uses Python 3.8.
+
+```shell-session
+$ ls
+default.nix  default.nix.orig  result
+$ mv default.nix.orig default.nix
+$ cat default.nix
+let
+  ...
+in
+pkgs.python38Packages.buildPythonApplication {
+  ...
+  propagatedBuildInputs = with pkgs.python38Packages; [ pyqt5 ];
+  ...
+}
+$ nix-build
+/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1
+```
+
+And we're back to the old component, the path is the same too.
+
+Still skeptical? You think that because it is cached inside the Nix
+store that it results in the same path?
+
+Let's perform garbage collection to wipe every unused components and
+then rebuild to proof that it is deterministic and the same Nix file
+will always build the same exact component.
+
+```shell-session
+$ rm result
+$ nix-collect-garbage -d
+removing old generations of profile /nix/var/nix/profiles/per-user/yuki/profile
+...
+finding garbage collector roots...
+removing stale link from '/nix/var/nix/gcroots/auto/y3scm0nhz4gacw17lpf0mg03r8f9l65i' to '/home/yuki/trash/result'
+deleting garbage...
+deleting '/nix/store/4dlhsl4kxp9p632mbv1rcq9kjc0y6zdy-stdenv-linux'
+...
+deleting unused links...
+note: currently hard linking saves -0.01 MiB
+186 store paths deleted, 578.66 MiB freed
+$ ls
+default.nix
+$ nix-build
+this derivation will be built:
+  /nix/store/5ia4ma9b96kg620k7k0w9xhgqajd828n-youtube-launcher-0.1.drv
+these 113 paths will be fetched (75.82 MiB download, 384.18 MiB unpacked):
+  /nix/store/07j6d0lr6p1gjxi2qhf6wn88nl81x5jj-perl-5.32.1
+  ...
+copying path '/nix/store/6c5x1d03c5323lsbr2il8w1gwf83cqjj-python-remove-bin-bytecode-hook' from 'https://hydra.iohk.io'...
+...
+building '/nix/store/5ia4ma9b96kg620k7k0w9xhgqajd828n-youtube-launcher-0.1.drv'...
+...
+/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1
+```
+
+As you can see, it's still the same.
+
+In case you didn't know, I originally wrote this article when the
+latest version of nixpkgs is v21.05.
+
+Now, in January 2022, the latest version is v21.11. You can try to
+modify the `default.nix` to use v21.11 instead of v21.05:
+
+```nix
+let
+  pkgs = import (builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/4f6d8095fd51.tar.gz";
+    sha256 = "14sm0bjjcmi9qmznwy3nkd2vbhj5xcshgm54a5wiprl9ssvxqw53";
+  }) {};
+  ...
+in
+  ...
+```
+
+Using the change above, try building it on your machine. I can
+guarantee the path will be `/nix/store/w94hyhds5dc0rv4plsp11y8nm6jnv354-youtube-launcher-0.1` on
+linux/amd64.
+
+# The basic building blocks of Nix
+
+At this point, you might think that Nix is a very complex piece of
+software.
+
+After all, when we're packaging software, we need to write a script in
+a weird bespoke programming language!
+
+While yes, this article has demonstrated that you are required to
+write Nix expressions (`.nix` files we've written) to do anything with
+Nix.
+
+However, beneath the seemingly complex language, you'll see that the
+very foundation of Nix are built with basic fundamental building
+blocks.
+
+With that in mind, you have seen things we've achieved with Nix
+expressions: launching an environment with additional software to
+build and package complex software. However, how does it all work?
+
+# Instatiation
+
+First, Nix expressions are translated to derivations in a process
+called "instatiation".
+
+A careful reader might notice this term being mentioned a lot when
+we demonstrate Nix: `.drv` files and the word "derivation" scattered
+throughout from Nix's outputs.
+
+What are they? Let's take a look!
+
+We use our previous Nix expression which packages the YouTube Launcher
+app we just made (without the modifications) and use `nix-instantiate`
+to perform only the instatiation process.
+
+```shell-session
+$ nix-instantiate default.nix
+/nix/store/5ia4ma9b96kg620k7k0w9xhgqajd828n-youtube-launcher-0.1.drv
+```
+
+After running the command, it outputs the path within the Nix store of
+the resulting derivation. Let's see what's inside!
+
+```shell-session
+$ cat /nix/store/5ia4ma9b96kg620k7k0w9xhgqajd828n-youtube-launcher-0.1.drv
+Derive([("out","/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1","","")],
+...
+```
+
+Oh wow, this looks rather daunting. No worries, `nix show-derivation`
+will pretty print it for you!
+
+Just give the path to the derivation to `nix show-derivation`, like so:
+
+```shell-session
+$ nix show-derivation /nix/store/5ia4ma9b96kg620k7k0w9xhgqajd828n-youtube-launcher-0.1.drv
+{
+  "/nix/store/5ia4ma9b96kg620k7k0w9xhgqajd828n-youtube-launcher-0.1.drv": {
+    "outputs": {
+      "out": {
+        "path": "/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1"
+      }
+    },
+    "inputSrcs": [
+      "/nix/store/64fk9k7an4gyn7qgr85p42s8763yc56q-source",
+      "/nix/store/9krlzvny65gdc8s7kpb6lkx8cd02c25b-default-builder.sh"
+    ],
+    "inputDrvs": {
+      "/nix/store/2zjvqfjg2pww4lkafw2x4ni450a2w8hx-setuptools-setup-hook.drv": [
+        "out"
+      ],
+      ...
+      "/nix/store/wrnnl82wk8lz8wqgcrh8kii0kfjnl875-hook.drv": [
+        "out"
+      ]
+    },
+    "system": "x86_64-linux",
+    "builder": "/nix/store/kxj6cblcsd1qcbbxlmbswwrn89zcmgd6-bash-4.4-p23/bin/bash",
+    "args": [
+      "-e",
+      "/nix/store/9krlzvny65gdc8s7kpb6lkx8cd02c25b-default-builder.sh"
+    ],
+    "env": {
+      "LANG": "C.UTF-8",
+      "buildInputs": "/nix/store/p7csiywv541jnvrgah93p7zjvq8lkwkq-mpv-with-scripts-0.33.1",
+      "builder": "/nix/store/kxj6cblcsd1qcbbxlmbswwrn89zcmgd6-bash-4.4-p23/bin/bash",
+       ...
+      "strictDeps": "1",
+      "system": "x86_64-linux",
+      "version": "0.1"
+    }
+  }
+}
+```
+
+It's a rather massive JSON file. Let's break it down.
+
+## The outputs (`outputs`)
+
+```json
+"outputs": {
+  "out": {
+    "path": "/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1"
+  }
+},
+```
+
+The `outputs` section defines the deterministic path of the output of
+this derivation. The process is simply called "building".
+
+Nix builds the derivation and then store its outputs to the path
+defined here.
+
+## The inputs (`inputSrcs`, `inputDrvs`)
+
+```json
+"inputSrcs": [
+  "/nix/store/64fk9k7an4gyn7qgr85p42s8763yc56q-source",
+  "/nix/store/9krlzvny65gdc8s7kpb6lkx8cd02c25b-default-builder.sh"
+],
+```
+
+`inputSrcs` defines the path of the source code within the Nix store and
+a builder script which will be executed.
+
+```json
+"inputDrvs": {
+  ...
+  "/nix/store/457yxakhv0lc3df8jlb9cz0q8fk44lns-qtbase-5.15.2.drv": [
+    "dev"
+  ],
+  "/nix/store/6pa9w933ipkki2rxxw57qpqy4ngs8q6a-python3-3.8.9.drv": [
+    "out"
+  ],
+  ...
+  "/nix/store/7imvh7yyv754jjvaqd7cgvd196xcixsj-mpv-with-scripts-0.33.1.drv": [
+    "out"
+  ],
+  ...
+  "/nix/store/jv2c1byik9bpq87rj4vzfd6p6gf9m5cj-python3.8-PyQt5-5.15.2.drv": [
+    "dev"
+  ],
+  ...
+},
+```
+
+`inputDrvs` defines the inputs or dependencies to build this derivation.
+
+It mentions other components via their respective derivations (note
+the `.drv` prefix).
+
+You might be wondering why some have `out`, `dev`, `lib` or even multiple of
+them.
+
+That's because derivations can have multiple outputs and the list with
+`out`, `dev` tells Nix which outputs of the derivations to use.
+
+You can see how it compares by running `nix show-derivation
+/nix/store/457yxakhv0lc3df8jlb9cz0q8fk44lns-qtbase-5.15.2.drv` but I
+won't be getting into it in here.
+
+## The environment (`system`, `builder`, `args`, `env`)
+
+```json
+"system": "x86_64-linux",
+"builder": "/nix/store/kxj6cblcsd1qcbbxlmbswwrn89zcmgd6-bash-4.4-p23/bin/bash",
+"args": [
+  "-e",
+  "/nix/store/9krlzvny65gdc8s7kpb6lkx8cd02c25b-default-builder.sh"
+],
+"env": {
+  "LANG": "C.UTF-8",
+  "buildInputs": "/nix/store/p7csiywv541jnvrgah93p7zjvq8lkwkq-mpv-with-scripts-0.33.1",
+  "builder": "/nix/store/kxj6cblcsd1qcbbxlmbswwrn89zcmgd6-bash-4.4-p23/bin/bash",
+  ...
+  "doInstallCheck": "1",
+  "name": "youtube-launcher-0.1",
+  "nativeBuildInputs": "...",
+  "outputs": "out",
+  "patches": "",
+  "pname": "youtube-launcher",
+  "postFixup": "wrapPythonPrograms\n",
+  "postPatch": "substituteInPlace youtube_launcher.py \\\n  --replace \"'mpv'\" \"'/nix/store/p7csiywv541jnvrgah93p7zjvq8lkwkq-mpv-with-scripts-0.33.1/bin/mpv'\"\n",
+  "preFixup": "makeWrapperArgs+=(\"${qtWrapperArgs[@]}\")\n",
+  "propagatedBuildInputs": "/nix/store/cvwc3r4dcjjsa6vb50idlc4q171whvgl-python3.8-PyQt5-5.15.2-dev /nix/store/4s0h5aawbap3xhldxhcijvl26751qrjr-python3-3.8.9",
+  "propagatedNativeBuildInputs": "",
+  "src": "/nix/store/64fk9k7an4gyn7qgr85p42s8763yc56q-source",
+  "stdenv": "/nix/store/4dlhsl4kxp9p632mbv1rcq9kjc0y6zdy-stdenv-linux",
+  "strictDeps": "1",
+  "system": "x86_64-linux",
+  "version": "0.1"
+}
+```
+
+Here we see `system`, `builder`, and `args`, what's up with these?
+
+You might be able to guess on your own but here's an explaination:
+
+- `system` defines which exact architecture/operating system this
+  derivation is for.
+
+- In the early days of Nix, `builder` was originally used to defined the
+  script used to build the derivation.
+
+  This script was made along with the expression but this was changed
+  in later versions to use a generic builder script which we'll see
+  later.
+
+  Nowadays, it always points to the bash shell interpreter.
+
+- `args` defines the command arguments to pass to the builder. Because
+  of the change mentioned before, this simply tells the bash
+  interpreter to execute the generic builder script.
+
+- `env` defines all of the environment variable that will be setup for
+  the builder.
+
+  To ensure reproducibility, before running the build script, Nix
+  prepares a clean slate which involves removing all environment
+  variables.
+
+## Something about environment variables
+
+Have you noticed something perculiar with `env`?
+
+If you read the `env` section carefully, you see that it contains code
+we've written in the Nix expression like the `postPatch` and
+`preFixup` section.
+
+```json
+"postPatch": "substituteInPlace youtube_launcher.py \\\n  --replace \"'mpv'\" \"'/nix/store/p7csiywv541jnvrgah93p7zjvq8lkwkq-mpv-with-scripts-0.33.1/bin/mpv'\"\n",
+"preFixup": "makeWrapperArgs+=(\"${qtWrapperArgs[@]}\")\n",
+```
+
+```nix
+let
+  ...
+in
+pkgs.python38Packages.buildPythonApplication {
+  ...
+  postPatch = ''
+    substituteInPlace youtube_launcher.py \
+      --replace "'mpv'" "'${mpv}/bin/mpv'"
+  '';
+
+  preFixup = ''
+    makeWrapperArgs+=("''${qtWrapperArgs[@]}")
+  '';
+}
+```
+
+After seeing all this, you realize that all of that seemingly complex
+language ends up as a bunch environment variables in the end?
+
+Yeah, pretty much.
+
+Since we don't seem to find anything that performs the build, let's
+take a peek inside the generic build script itself?
+
+What kind of magic is it doing?
+
+# Realization
+
+Reading to the massive Nix derivation for a second time, we see the
+location of the build script from `args`.
+
+```json
+"args": [
+  ...
+  "/nix/store/9krlzvny65gdc8s7kpb6lkx8cd02c25b-default-builder.sh"
+],
+```
+
+```shell-session
+$ cat /nix/store/9krlzvny65gdc8s7kpb6lkx8cd02c25b-default-builder.sh
+source $stdenv/setup
+genericBuild
+```
+
+Just two lines of shell? Seriously?
+
+Okay, we see that it sources another shell script called
+`$stdenv/setup`. Knowing that it mentions an environment variable called
+`stdenv`, let's check its value from the derivation.
+
+```json
+"env": {
+  ...
+  "stdenv": "/nix/store/4dlhsl4kxp9p632mbv1rcq9kjc0y6zdy-stdenv-linux",
+  ...
+}
+```
+
+So, it's another component in the Nix store, let's take a peek inside.
+
+```shell-session
+$ ls /nix/store/4dlhsl4kxp9p632mbv1rcq9kjc0y6zdy-stdenv-linux/
+nix-support  setup
+$ cat /nix/store/4dlhsl4kxp9p632mbv1rcq9kjc0y6zdy-stdenv-linux/setup
+export SHELL=/nix/store/kxj6cblcsd1qcbbxlmbswwrn89zcmgd6-bash-4.4-p23/bin/bash
+initialPath="/nix/store/a4v1akahda85rl9gfphb07zzw79z8pb1-coreutils-8.32 ..."
+defaultNativeBuildInputs="/nix/store/yayg9xvxq3f8avpvw81p7a45zqadpgvb-patchelf-0.12 ..."
+defaultBuildInputs=""
+# Make "strip" produce deterministic output, by setting
+# timestamps etc. to a fixed value.
+commonStripFlags="--enable-deterministic-archives"
+export NIX_ENFORCE_PURITY="${NIX_ENFORCE_PURITY-1}"
+export NIX_ENFORCE_NO_NATIVE="${NIX_ENFORCE_NO_NATIVE-1}"
+NIX_LIB64_IN_SELF_RPATH=1
+...
+```
+
+It's a massive bash script which actually performs the build. This is
+it: the generic builder.
+
+As you can see, unlike `curl | sh` installers, the Nix expression
+language has a very limited scope of what it can actually do.
+
+The build process is a two-stage approach:
+
+- **Instatiation**
+
+  Outside the Nix store, Nix expressions are translated
+  to Nix derivations. The resulting derivation is then placed inside
+  the Nix store.
+
+- **Realization**
+
+  Within the Nix store, the derivation is read by the builder which
+  will execute the builder script and the derivation's outputs from
+  the build process will be stored inside the Nix store.
+
+This entire process will never touch any other part of your system and
+everything is nicely encapsulated.
+
+To guarantee this, Nix performs [Sandboxing](https://search.nixos.org/options?channel=21.05&show=nix.useSandbox&from=0&size=50&sort=relevance&query=sandbox) which isolates the build
+process from the host system.
+
+# The Standard Environment
+
+However, as you can see, all of this relies on `stdenv`. What is that?
+
+As the name implies, it is the standard environment provided by
+nixpkgs to build all software with Nix.
+
+This was originally made because it was impossible to rely on the
+["Linux Standard Base"](https://en.wikipedia.org/wiki/Linux_Standard_Base) of the present host system to serve as the
+stable basis to build software upon. Therefore, Nix made its own
+standard environment where it serves as the foundation of all software
+built by it.
+
+This basic foundation contains the basic set of utilities required to
+build everything, such as GCC compiler, bash shell interpreter, GNU
+coreutils, make, patch, etc.
+
+In order to be able to use and install software Nix, you need a
+prebuilt standard environment for your system.
+
+We won't be covering how the standard environment is bootstrapped and
+built in this article. If you're interested, the [stdenv package source](https://github.com/NixOS/nixpkgs/tree/e38de71da886e5ccd3642e05614547261384457d/pkgs/stdenv)
+in nixpkgs is a good starting point.
+
+In terms of trusted binaries, stdenv is the only component inside
+Nix's ecosystem that you need to trust.
+
+However, this situation is much better than other package managers
+which require you to trust individual packages which are uploaded by
+their respective maintainers.
+
+This requirement of trusting package maintainer uploads has spawned
+scandals such as [the infamous Chromium binary blob drama which
+happened in Debian in 2015](https://www.theregister.com/2015/06/17/debian_chromium_hubbub/) and nowadays, a lot of [the same thing is
+happening within the npm ecosystem](https://github.com/cloudflare/binary-install).
+
+In Nix, other than the standard environment, you're not required to
+trust the binaries which are delivered to you. You have the choice to
+build everything on your machine, Gentoo style.
+
+Just go to `nix.conf` and remove `https://cache.nixos.org` from
+`substituters`.
+
+```ini
+...
+substituters = https://cache.nixos.org/
+trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+...
+```
+
+The location of `nix.conf` varies on how Nix is installed.
+
+They're either in `/etc/nix/nix.conf` or `~/.config/nix/nix.conf`.
+
+If you're running NixOS or use home-manager, you need to modify
+`configuration.nix` or `home.nix`.
+
+Once stdenv is present in your Nix store, you can completely detach
+yourself from the Nix binary cache and build every single thing on
+your own.
+
+However, unlike binary repos, you shouldn't need to worry about the
+Nix binary cache.
+
+Remember, one of Nix goals is to be able to reproduce the same exact
+output every time, bit by bit. So, in case the cache is serving
+malformed binaries, you can [check and verify](https://nixos.org/manual/nix/unstable/advanced-topics/diff-hook.html).
+
+According to [r13y.com](https://r13y.com/), as of writing, the NixOS unstable ISO is 100%
+reproduced exactly the same, at different times, on different systems.
+
+When this is not the case, most of the time it caused by [manpage
+generation](https://r13y.com/diff/d6e61deed4ecd52b09d31fa9d5e1168d36971787c5a86e3a65a86f9931794cfb-f9bb7d64a8908529aee04fd0e6ec2380c9726cf3454bb8b32e8457ee51ba80a4.html).
+
+# Binary cache
+
+I've mentioned the binary cache previously but what is it exactly?
+
+It is essentially an accessible Nix store that is used to download
+built components from.
+
+While you might think it's a binary repository, I hope after reading
+this far, you'll realize that it's not really a component.
+
+A more accurate analogy would be an [artifact store](https://docs.gitlab.com/ee/ci/pipelines/job_artifacts.html) of a typical
+[continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) setup.
+
+In case you aren't familiar, in short, continuous integration is an
+automated system where it builds source code regularly following each
+iteration of the source code as it change.
+
+After the build process is done and passes successfully, it will end
+up with fresly built binaries which will be then stored inside an
+artifact store where developers or highly technical users can access
+to test the new bleeding edge version of the software as if they're
+fresh out of the oven.
+
+In fact, this is how the Nix community builds their entire package
+collection, nixpkgs. [Hydra](https://github.com/NixOS/hydra) is the continuous build system which
+regularly follow and build the entire Nix packages collection.
+
+The result of each build is submitted to the massive central Nix
+binary cache instance which anyone can use to download the latest
+bleeding edge software without having to build on their own machine.
+
+Recalling how the derivation contains the output path before it is
+even built, you can see how Nix knows which files to download from the
+binary cache.
+
+```json
+"outputs": {
+  "out": {
+    "path": "/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1"
+  }
+},
+```
+
+Same goes with the dependencies, the `inputDrvs` defines which
+derivations are used as the inputs for the software.
+
+```json
+"inputDrvs": {
+  ...
+  "/nix/store/457yxakhv0lc3df8jlb9cz0q8fk44lns-qtbase-5.15.2.drv": [
+    "dev"
+  ],
+  "/nix/store/6pa9w933ipkki2rxxw57qpqy4ngs8q6a-python3-3.8.9.drv": [
+    "out"
+  ],
+  ...
+  "/nix/store/7imvh7yyv754jjvaqd7cgvd196xcixsj-mpv-with-scripts-0.33.1.drv": [
+    "out"
+  ],
+  ...
+  "/nix/store/jv2c1byik9bpq87rj4vzfd6p6gf9m5cj-python3.8-PyQt5-5.15.2.drv": [
+    "dev"
+  ],
+  ...
+},
+```
+
+Simply read each derivations in the list and do the same process again
+until you have a list of components that can be downloaded from the
+binary cache and components that needs to be built. Obviously,
+components which are already present in your system's Nix store don't
+need to be rebuilt/redownloaded.
+
+The deterministic nature reduces the amount of software required to be
+downloaded and built therefore we save time, storage, bandwidth, and
+compute resources.
+
+For private or propriertary projects, you can run your own Nix binary
+cache for your organization. However, this is out of scope for this
+article. The easiest way is to use a hosted service like [Cachix](https://www.cachix.org/).
+
+However, you don't need a binary cache to transfer built components
+across machines. You can simply copy them manually with `nix-copy-closure`:
+
+```shell-session
+$ ls /nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1
+ls: cannot access '/nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1': No such file or directry
+$ nix-copy-closure --from yuki@neru \
+  /nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1
+$ nix-copy-closure --to yuki@kuzuha \
+  /nix/store/y1aimywh5ff57pv2azg705hlkcciy2dn-youtube-launcher-0.1
+```
+
+By the way, you can only share built components to other machines
+which are the same system and architecture (i.e Linux/amd64 machines
+can transfer to another Linux/amd64 machine but not to macOS/arm64
+machines). The same is true for binary caches. So, keep that in mind!
+
+# Distro-independent
+
+Since the beginning, Nix is a package manager that works along side
+your existing one. In fact, the [NixOS paper](https://edolstra.github.io/pubs/nixos-jfp-final.pdf) was published 4 years
+after the Nix paper.
+
+Because of this, packages in Nix are vendor-independent and
+theoretically can be used in any UNIX-like operating systems and
+computer architectures.
+
+As of writing, officially, nixpkgs and hydra (nixpkgs' main binary
+cache and build cluster) supports Linux on ARM and Intel/AMD along
+with macOS on Intel and even Apple Sillicon!
+
+However, people have made Nix packages build on [all sorts of weird
+operating system and architecture combinations](https://github.com/NixOS/nixpkgs/blob/0f1204bd2be0ca1ea60b70d6d1eb7a11077f6986/lib/systems/doubles.nix#L8-L57).
+
+This allow you to choose which system you want to use without having
+to worry about software availability.
+
+As of writing, according to [Repology](https://repology.org/repositories/statistics/total), nixpkgs unstable sits at the
+number 1 spot for total number of projects packaged. So, I'm fairly
+certain every free and open source that you need is available in
+nixpkgs.
+
+- Tired of Arch Linux breaking again? Why not move to something
+  stabler like RHEL, Debian, or SUSE and just use Nix for the
+  additional software you need/want.
+
+- Stuck on RHEL, Debian stable, or SLE because of work and tired of
+  using 2-4 years old version of your favorite software? Just fire up
+  Nix and grab everything you need without any risks.
+
+- Do you need a specific version of software at work, like PHP 5 for
+  legacy code, but your coworkers are using macOS and various Linux
+  distros? Just use Nix and create a [Nix shell environment](https://notes.yukiisbo.red/posts/2021/08/Spice_up_with_Nix_Shells.html) for them!
+
+Personally, after discovering the power of Nix, I simply stopped using
+rolling release distros like Arch Linux or Gentoo "unstable" or Debian
+sid.
+
+As of writing, I'm currently using Ubuntu 20.04 LTS or Debian stable
+under WSL and just use Nix for the additional software I need, it's
+lovely not having to fuss about my system.
+
+# Conclusion
+
+As you can see, Nix nicely solve [the common issues with traditional
+software deployment methods](https://notes.yukiisbo.red/posts/2021/09/Spice_up_with_Nix_Traditional_Software_Deployment.html).
+
+The cryptographic hashes are used to guarantee that software are built
+with the exact same inputs (dependencies, build options, source code,
+etc) and avoids collision with other versions of the same software.
+
+The hashes are then used to make deterministic paths which ensure the
+built software uses the exact version of libraries that it needs. In
+fact, Nix determines runtime dependencies for a built component simply
+by scanning the build output for the `/nix/store/...` patterns.
+
+The same Nix expression can be shared to other systems without having
+to worry too much about system specific detail.
+
+Nix's deterministic nature and the power leveraged by binary caches
+allows you to avoid building the same software twice. In addition, the
+entire process guarantees that you only download and build the
+components you actually need on runtime.
+
+Outside of the second stage of the build process, Nix doesn't use any
+containerization nor namespacing tricks, thus reducing the overhead
+and doesn't require giving normal users ["root"-like access](https://book.hacktricks.xyz/linux-unix/privilege-escalation/docker-breakout/docker-breakout-privilege-escalation) just to run
+a piece of software.
+
+In fact, with the sandboxing done by the build process, the generic
+builder, and how derivations are made from Nix expressions, Nix
+ensures that building software doesn't tamper with your system and
+leave it completely untouched.
+
+After reading this article, I hope you realize how radically different
+Nix is and how its very foundation is able to solve problems which are
+common with previous methods of installing software.
+
+# Addendum: The Imperfections
+
+However, like many things, Nix is not perfect.
+
+- For a lot of people, especially those who aren't familiar with
+  functional programming, find the Nix expression language to be an
+  unnecessary learning curve.
+
+  For something that's meant to build and package software, I wish it
+  uses something that's more familiar, such as [rpm spec](https://rpm-packaging-guide.github.io/#working-with-spec-files) and [BSD-style
+  Makefiles](https://github.com/openbsd/ports/blob/2c5e6b8b54eaf67cda70925c783f12e603b57e3b/multimedia/mpv/Makefile).
+
+- Since Nix relies on cryptographic hashes and deterministic paths to
+  guarantee the inputs used when building a component, what happens
+  when a common dependency like OpenSSL receives a minor update?
+
+  It means that an enormous amount of software which uses it directly
+  or indirectly will need to be rebuilt which also means that people
+  have to redownload a bunch of the same software.
+
+  This landslide effect doesn't exist in more traditional approaches
+  to software packaging as the package maintainer can simply check
+  whether the current build of the application works with the newer
+  version of OpenSSL. Therefore, only the packages which fail will
+  need to be rebuild and updated.
+
+There are many other imperfections like these within the Nix
+ecosystem. However, in comparison to the alternatives, they're much
+more easier to solve than the foundational problems with traditional
+approaches.
+
+Since Nix only cares about the derivation, it doesn't care how it was
+made. In fact, this is how [GNU Guix](https://guix.gnu.org/) came to be. They forked Nix
+(`nix-daemon`) and replaced the language with Scheme/Guile which is easy
+to do, thanks to the basic fundamental building blocks of Nix.
+
+While the second one is more difficult to solve, there's a solution in
+the works called content-addressed storage. How it works is out of
+scope of this article but the people at [Tweag](https://www.tweag.io/) wrote [a short article
+about it](https://www.tweag.io/blog/2020-09-10-nix-cas/).
+
+Knowing the people within the community, I'm fairly confident that
+most of these imperfections will be solved one way or another.

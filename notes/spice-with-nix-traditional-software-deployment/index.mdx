@@ -1,0 +1,512 @@
+---
+title: "Spice up with Nix: The issues with traditional software deployment"
+date: "2021-09-04"
+slug: "spice-up-with-nix-traditional-software-deployment"
+description: "In this article, we explore the inherent issue with package managers like apt and containers like Snap, Docker, AppImage."
+---
+
+In this article, we will explore the issues with traditional methods
+of installing software.
+
+This includes using distribution package managers such as apt, dnf,
+pacman and third-party ones like MacPorts and Homebrew.
+
+In addition, we will take a look at containerized solutions and their
+issues.
+
+# The problem with traditional software deployment
+
+In the [Nix thesis](https://edolstra.github.io/pubs/phd-thesis.pdf), [Eelco Dostra](https://edolstra.github.io/) potrayed how ancient the current
+methods of software deployment is by comparing it to how software
+developers used to manage and allocate memory in Assembly.
+
+You don't need to know how memory is managed in Assembly as I will
+illustrate the issue without even mentioning it.
+
+The filesystem of a typical [\*nix system](https://stackoverflow.com/a/4715413) (i.e Linux, macOS) is
+essentially free-form with loosely defined ["standards"](https://en.wikipedia.org/wiki/Linux_Standard_Base) and
+["conventions"](https://man.openbsd.org/hier.7) adopted by system administrators, software developers,
+and package maintainers.
+
+In this case, filesystem refers to how files are structured on your
+system, like the `/bin/` folder contains program binaries and your
+personal "home" folder is inside the `/home/` folder.
+
+If you want to see how different this can be, see how files are
+structured in [macOS](https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html) and a typical [Linux distribution](https://help.ubuntu.com/community/LinuxFilesystemTreeOverview).
+
+You might argue that they shouldn't be compared but they both share a
+lot of the same software (i.e [Docker in macOS with Homebrew](https://formulae.brew.sh/formula/docker#default) and [Docker
+in Ubuntu](https://packages.ubuntu.com/hirsute/docker.io)).
+
+Even then, it's not like every distributions of Linux follow a [rigid
+and well-defined standard](https://en.wikipedia.org/wiki/Linux_Standard_Base#Limitations_on_Debian).
+
+Some of you may have strong opinions about where software should be
+installed on your system.
+
+Perhaps, you have a rigid rule where all user-compiled software must
+be stored inside a single prefix like `/usr/local/` or isolated nicely
+inside their own prefixes (i.e [`/usr/local/nginx/`](https://www.nginx.com/resources/wiki/start/topics/tutorials/gettingstarted/#installation), [`/opt/android/`](https://developer.android.com/studio/install#linux),
+[`/home/minecraft/`](https://www.linode.com/docs/guides/how-to-set-up-minecraft-server-on-ubuntu-or-debian)).
+
+In the end, these are choices driven by opinions which are made by
+different parties.
+
+Now, as a software developer, how do you handle this mess?
+
+Let's take a fairly simple example: a Python script.
+
+It's nothing complicated, something that is written by someone who's
+new to Python:
+
+```python
+#!/usr/bin/python
+
+def main():
+    for i in range(1, 11):
+        print(f'Counting down {i}...')
+
+if __name__ == '__main__':
+    main()
+```
+
+That's a fairly simple, isn't it?
+
+But look at the [shebang](<https://en.wikipedia.org/wiki/Shebang_(Unix)>) (`#!`), the script has a major assumption of
+where Python is installed.
+
+It expects it to be installed at `/usr/bin/python`.
+
+However, the script uses a feature which only exists in Python 3.
+
+If you're running a system that's in the "Python is Python 3" club, it
+may work for you.
+
+But for a lot of people, `python` is not `python3`, it's still `python2`.
+
+```shell-session
+$ python --version
+Python 2.7.18
+$ ./script.py
+  File "./script.py", line 5
+    print(f'Counting down {i}...')
+                                ^
+SyntaxError: invalid syntax
+```
+
+The reason for this is mainly for compatibility as Python 3 introduced
+a lot of features which [breaks its backwards-compatibility with
+Python 2](https://confluence.ecmwf.int/display/UDOC/Migration+to+Python+3).
+
+To fix this issue, the shebang must use `/usr/bin/python3`.
+
+```python
+#!/usr/bin/python3
+
+def main():
+    for i in range(1, 11):
+        print(f'Counting down {i}...')
+
+if __name__ == '__main__':
+    main()
+```
+
+Now, you encounter a different issue: Some people use various flavors
+of BSDs (including macOS) instead of Linux.
+
+```shell-session
+$ ./script.py
+zsh: ./script.py: bad interpreter: /usr/bin/python3: no such file or directory
+```
+
+Unlike Linux, BSDs has a monolithic approach where it is not just a
+kernel but also encapsulates everything which makes a complete BSD
+system.
+
+In this case, "everything" could be anything from the basic core
+utilities (`cat`, `grep`, `ls`, etc.) to [an audio server](https://man.openbsd.org/sndiod.8) or even [a
+ready-to-use HTTP server](https://man.openbsd.org/httpd.8).
+
+This is why Linux distributions exists, someone need to construct a
+complete system with the Linux kernel and additional essential
+components.
+
+Because of BSD's monolithic approach, third-party software are always
+installed under a separate prefix (such as `/usr/local/`) because `/usr/`
+is occupied by software provided by the operating system.
+
+However, you can't always assume that the software will be in
+`/usr/local/`.
+
+In macOS which lacks an official package manager from Apple, macOS
+users uses a third-party package manager such as [Homebrew](https://brew.sh/), [MacPorts](https://www.macports.org/),
+and [pkgsrc](https://www.pkgsrc.org/) which installs software [in](https://guide.macports.org/chunked/reference.variables.html) [different](https://www.netbsd.org/docs/pkgsrc/configuring.html) [places](https://docs.brew.sh/FAQ#why-should-i-install-homebrew-in-the-default-location) within the
+filesystem.
+
+In a NetBSD system, there are two prefixes for third-party software:
+
+- The [`/usr/pkg/` prefix](https://www.netbsd.org/docs/pkgsrc/files.html) for software that are installed by
+  pkgsrc.
+- The `/usr/local/` prefix for software that are compiled and
+  installed by the user.
+
+With this new knowledge and realisation of the issue, you look around
+to find if there's a simple solution.
+
+After all, this should be a solved problem, right?
+
+After a while, you'll find [env](https://man.openbsd.org/env.1) which is a loose convention adopted by
+[most](https://www.freebsd.org/cgi/man.cgi?query=env&apropos=0&sektion=0&manpath=FreeBSD+13.0-RELEASE+and+Ports&arch=default&format=html) [\*nix](https://ss64.com/osx/env.html) [systems](https://nixdoc.net/man-pages/HP-UX/man1/env.1.html).
+
+`/usr/bin/env` is a program that will direct the user to run the right
+program, no matter how the system is configured. Just give it a name
+of the executable and it will find and execute it for you.
+
+Perfect, simply replace your `/usr/bin/python3` with `/usr/bin/env
+python3` and now it works.
+
+```python
+#!/usr/bin/env python3
+
+def main():
+    for i in range(1, 11):
+        print(f'Counting down {i}...')
+
+if __name__ == '__main__':
+    main()
+```
+
+Oh no, you realize another issue: the script requires at least Python
+3.6 because it uses [f-strings](https://www.python.org/dev/peps/pep-0498/).
+
+```shell-session
+$ python3 --version
+Python 3.5.9
+$ ./script.py
+  File "./script.py", line 5
+    print(f'Counting down {i}...')
+                                ^
+SyntaxError: invalid syntax
+```
+
+Well, as the developer, you can choose to be ignorant and simply
+state: "Your system is obselete if it doesn't have at least Python
+3.6".
+
+Even then, what about system distributions that ships multiple versions
+of Python?
+
+Package repositories such as the ones used in macOS Homebrew, FreeBSD,
+and OpenBSD ships multiple versions of Python, Ruby, Node, PHP, and
+others.
+
+```shell-session
+$ uname -s
+OpenBSD
+$ pkg_info -Q python
+...
+python-2.7.18p1
+python-3.8.10
+python-3.9.5
+...
+$ type -a python3
+python3 not found
+$ type -a python3.8
+python3.8 is /usr/local/bin/python3.8
+$ type -a python3.9
+python3.9 is /usr/local/bin/python3.9
+```
+
+The binaries for them are typically separated using the version as a
+suffix (i.e `python37`, `python38`, `python39`)
+
+So, how do you assume what `python3` will be?
+
+- Is `python3` the latest version?
+- Is it something in between that's chosen by the system
+  administrator?
+- Is it the oldest available version for compatibility?
+- Does it even exist at all?
+
+As you can see, this is the very issue with traditional software
+deployment and why it can feel ancient at times.
+
+You would like to believe that the solution simple and common.
+However, as you gaze down the abyss of software deployment, you start
+to realize that it is bottomless.
+
+We haven't started using third-party Python libraries or even native
+libraries.
+
+This is just a simple script which requires a Python interpreter
+that's at least version 3.6.
+
+In many ways, this was someone's "Hello, World!".
+
+- What if we require libraries like [requests](https://docs.python-requests.org/en/master/)?
+- What if we require programs like [FFmpeg](http://ffmpeg.org/) and [ImageMagick](https://imagemagick.org/index.php)?
+- What if we require data files like game assets?
+
+This is a universal issue that affects everyone.
+
+From the first-year computer science student to the experienced
+veteran administrator, no one is able to pursue their adventures
+without having to plunge deep into the abyss of software deployment.
+
+# The problem with traditional packages
+
+Most system distributions ships third-party software.
+
+They could be [a recipe](https://docs.freebsd.org/en/books/handbook/ports/#ports-using) that the user can execute to download, compile,
+and install third-party software.
+
+```shell-session
+$ cd /usr/ports/misc/hello/
+$ make
+===>  License GPLv3+ accepted by the user
+===>   hello-2.10_1 depends on file: /usr/local/sbin/pkg - found
+=> hello-2.10.tar.gz doesn't seem to exist in /usr/ports/distfiles/.
+=> Attempting to fetch https://ftpmirror.gnu.org/hello/hello-2.10.tar.gz
+hello-2.10.tar.gz                                      708 kB 3368 kBps    00s
+===> Fetching all distfiles required by hello-2.10_1 for building
+===>  Extracting for hello-2.10_1
+=> SHA256 Checksum OK for hello-2.10.tar.gz.
+===>  Patching for hello-2.10_1
+===>   hello-2.10_1 depends on package: gmake>=4.3 - found
+...
+===>  Configuring for hello-2.10_1
+...
+===>  Building for hello-2.10_1
+...
+====> Compressing man pages (compress-man)
+$ doas make install
+===>  Installing for hello-2.10_1
+...
+$ hello
+Hello, world!
+```
+
+Or, they could be [a binary package](https://rpm.org/about.html) which the user can easily install
+with a tool.
+
+```shell-session
+$ doas pkg install hello
+Updating HardenedBSD repository catalogue...
+HardenedBSD repository is up to date.
+All repositories are up to date.
+The following 1 package(s) will be affected (of 0 checked):
+
+New packages to be INSTALLED:
+        hello: 2.10_1 [HardenedBSD]
+
+Number of packages to be installed: 1
+
+56 KiB to be downloaded.
+
+Proceed with this action? [y/N]: y
+[1/1] Fetching hello-2.10_1.txz: 100%   56 KiB  56.9kB/s    00:01
+Checking integrity... done (0 conflicting)
+[1/1] Installing hello-2.10_1...
+[1/1] Extracting hello-2.10_1: 100%
+$ hello
+Hello, world!
+```
+
+These packages are maintained by the [humble package maintainers](https://nm.debian.org/public/people/dm_all/) who
+risk their lives deep within the abyss in order to help users install
+third-party software with little to no pain.
+
+Often times, package maintainers are required to [write patches](https://salsa.debian.org/apache-team/apache2/-/tree/master/debian/patches) to make
+software work.
+
+With the Python script example we did, they might write a patch to
+make it use the exact version of Python and explicitly declare which
+version of Python is required for the package.
+
+For a lot of people, this works just fine.
+
+Simply install the software you need from the package manager present
+in your system.
+
+But here's the issue, what if the software is not available from the
+package manager?
+
+Well, as a user, you have two choices:
+
+- Compile and install it by hand.
+- Dive into the abyss and become a package maintainer.
+
+None of the two choices are particularly good.
+
+Becoming a package maintainer is hard as you have to be ready for the
+following:
+
+- Follow the latest version of the software.
+- Write patches to make it work.
+- In addition, follow the dependencies of the software.
+- Write patches to make the dependencies work.
+- And repeat.
+
+If you compile and install it by hand, you're on your own:
+
+- You have the responsibility of maintaining the software locally.
+- You have to make sure that it doesn't conflict with anything on the
+  system.
+- You have to make sure that the dependencies that it requires are
+  there.
+
+Essentially, you have to become the package maintainer for your own
+system and what if you need it in another system? Tough luck.
+
+This issue has spawned three new trends:
+
+- The infamous `curl | sh` installer.
+- Package managers which are specific to a particular programming
+  language (i.e [npm](https://www.npmjs.com/), [pip](https://pypi.org/project/pip/))
+- Using containers as a medium to deliver and run software.
+
+# The problem with `curl | sh` installers and language-specific package managers
+
+The `curl | sh` installer is simply a small script that checks the state
+of your system and perform the proper installation procedure based on
+your system.
+
+The main problem with `curl | sh` is [their unsafe nature](https://github.com/djm/pipe-to-sh-poc).
+
+As the script is able to [do anything](https://git.yukiisbo.red/-/snippets/6) to your system, it is no
+different to a [Self-XSS](https://en.wikipedia.org/wiki/Self-XSS) attack.
+
+Because it is a shell script, it cannot be limited to only perform the
+tasks necessary to achieve the goal of installing the software.
+
+The programming language specific package managers has the issue of
+limited reach.
+
+For example, if you're installing a library to interact with a MySQL
+database, you might need to have the necessary MySQL native libraries
+to be installed which is out of reach for the language specific
+package managers.
+
+However, both have share a major issue due to the lack of isolation:
+file conflicts.
+
+For example, you've installed the [Docker SDK for Python](https://docker-py.readthedocs.io/en/stable/) via pip but
+you need to install [Docker Compose](https://docs.docker.com/compose/) via your system's package manager.
+
+As Docker compose requires the Docker SDK, it also need the SDK to be
+installed from the system's package manager.
+
+The Docker SDK package from the system's package manager cannot be
+installed because it is conflicting with the Docker SDK installed by
+pip.
+
+Or, it will install but you will have two separate versions of the
+same package which will cause weird issues: Which version of the
+Docker SDK will docker-compose use?
+
+The common solution for this is to install it on separated prefixes.
+
+For example, in Python, software developers typically setup separate,
+local, and isolated prefixes called [Virtual environments](https://docs.python.org/3/tutorial/venv.html).
+
+The same mechanic is present in `curl | sh` installers, they commonly
+use local separate prefixes (i.e `~/.cargo/` which is used by [rustup](https://rustup.rs/)).
+
+# The problem with containers
+
+Application containers such as Docker, [Snap](https://snapcraft.io/), [Flatpak](https://flatpak.org/) and [AppImage](https://appimage.org/)
+require some form of file system isolation.
+
+This is because they not only ship the software but also an entire
+system tailored for running the software.
+
+You can see this in action with [Docker images](https://github.com/wagoodman/dive) which is a tarball
+archive of a tailored Linux system made to run a specific piece of
+software.
+
+In macOS, they use something similar called [Application bundles](<https://en.wikipedia.org/wiki/Bundle_(macOS)>) which
+are just folders filled with the necessary data files, libraries, and
+binaries.
+
+This means that software that are distributed through these mediums
+takes a lot of storage space.
+
+For a lot of people, this is not an issue because for them storage is
+cheap.
+
+However, as someone who has lived their life in Indonesia with slow
+4G, most of my computing time is taken by the simple task of
+downloading software.
+
+To mitigate the issue, they have solutions which reduces the download
+size:
+
+- Docker images are composed of layers which can be shared across
+  images.
+- macOS provides [Frameworks](https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/OSX_Technology_Overview/SystemFrameworks/SystemFrameworks.html) which are simply bundles of popular
+  libraries which third-party applications can use.
+- Flatpak share a similar system to macOS framework called [Runtimes](https://docs.flatpak.org/en/latest/basic-concepts.html#runtimes).
+
+But in the end, these are still compromises and they won't guarantee
+that you won't redownload the same files.
+
+# Closing
+
+As you can see, the current method of installing software is
+fundamentally flawed as it requires knowing the state of the
+system which will guide you to make the necessary changes that allows
+the software to be installed.
+
+Package managers simply automate the installation process to the point
+where anyone can install easily without having to know much about the
+system.
+
+However, package managers can only target a specific system (i.e
+Ubuntu or Arch) and the same packages can't be shared between
+different systems (ex. you can't use Arch packages in Ubuntu).
+
+`curl | sh` installers are another form of automation with the caveat
+that they have unlimited reach and control on the system which is
+fundamentally unsafe.
+
+Ultimately, they can't be trusted to only perform the tasks required
+to install the software but this unlimited reach is required in order
+for it to know the current state of your system.
+
+Programming language specific package managers doesn't really solve
+this issue as they have a very limited reach by design in order to not
+break your system. They only care about the environment for the
+specific programming language it was made for.
+
+Application containers and bundles are working around the issue by
+shipping a complete system with the software you need. This results in
+wasting a lot of resources which renders it unaccessible to a lot of
+people.
+
+There are plenty more of other issues with the current methods such as
+the requirement of trusting the humble package maintainers.
+
+There have been cases where you can't trust them like the [chromium
+binary blob scandal](https://www.theregister.com/2015/06/26/googles_not_listening_binary_blob_banished_from_chromium_build/) that has impacted Debian.
+
+This demonstrate the fact that a malicious agent only need to attack
+the few humble package maintainers.
+
+As a user, it's not easy to audit binaries especially when [they're not
+reproducible](https://wiki.debian.org/ReproducibleBuilds).
+
+You can choose to build and install everything from source like [Gentoo](https://www.gentoo.org/)
+but that takes [a huge chunk of time](https://randomascii.wordpress.com/2020/03/30/big-project-build-times-chromium/) which is a luxury that not
+everyone has.
+
+You can build your own trusted build cluster and share the resulting
+binaries but that costs money to buy the necessary hardware and labor
+to maintain it.
+
+In the end, I hope this is enough for you to consider that there's a need
+for a new way of installing software.
+
+In the next article, we will explore how Nix solves all of the
+fundamental issues with traditional software deployment by introducing
+a new model called functional software deployment.

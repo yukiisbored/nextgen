@@ -3,5 +3,22 @@
 @tailwind utilities;
 
 a {
-  @apply text-yuki hover:text-yuki-dark active:underline focus:underline;
+  @apply text-yuki hover:text-yuki-dark active:underline focus:underline font-medium;
+}
+
+.prose-yuki {
+  @apply prose prose-a:text-yuki prose-a:no-underline hover:prose-a:text-yuki-dark prose-h1:text-yuki prose-h2:text-yuki prose-h3:text-yuki prose-h4:text-yuki;
+  max-width: inherit;
+}
+
+.token .shell-symbol {
+  user-select: none;
+}
+
+.token .path {
+  user-select: none;
+}
+
+.prose-yuki video {
+  @apply w-full aspect-video mx-auto;
 }

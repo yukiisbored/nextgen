@@ -17,12 +17,96 @@ const config: GatsbyConfig = {
     "gatsby-plugin-postcss",
     "gatsby-plugin-image",
     "gatsby-plugin-sharp",
-    "gatsby-plugin-mdx",
+    {
+      resolve: "gatsby-plugin-mdx",
+      options: {
+        gatsbyRemarkPlugins: [
+          "gatsby-remark-autolink-headers",
+          {
+            resolve: "gatsby-remark-images",
+            options: {
+              showCaptions: true,
+            },
+          },
+          "gatsby-remark-copy-linked-files",
+          {
+            resolve: "gatsby-remark-prismjs",
+            options: {
+              noInlineHighlight: true,
+            },
+          },
+          "gatsby-remark-smartypants",
+        ],
+      },
+    },
     {
       resolve: "gatsby-source-filesystem",
       options: {
         name: "content",
         path: `${__dirname}/src/content`,
+      },
+    },
+    {
+      resolve: "gatsby-source-filesystem",
+      options: {
+        name: "notes",
+        path: `${__dirname}/notes`,
+      },
+    },
+    {
+      resolve: "gatsby-plugin-feed",
+      options: {
+        query: `
+          {
+            site {
+              siteMetadata {
+                title
+                description
+                siteUrl
+                site_url: siteUrl
+              }
+            }
+          }
+        `,
+        feeds: [
+          {
+            serialize: ({ query: { site, allMdx } }) => {
+              return allMdx.nodes.map((node) => {
+                return {
+                  ...node.frontmatter,
+                  description: node.frontmatter.description || node.excerpt,
+                  date: node.frontmatter.date,
+                  url: `${site.siteMetadata.siteUrl}/notes/${node.frontmatter.slug}`,
+                  guid: `${site.siteMetadata.siteUrl}/notes/${node.frontmatter.slug}`,
+                  custom_elements: [{ "content:encoded": node.fields.html }],
+                };
+              });
+            },
+            query: `
+              {
+                allMdx(
+                  sort: [{ frontmatter: { date: DESC } }]
+                  filter: { frontmatter: { slug: { ne: null } }}
+                ) {
+                  nodes {
+                    fields {
+                      html
+                    }
+                    excerpt
+                    frontmatter {
+                      title
+                      date
+                      slug
+                      description
+                    }
+                  }
+                }
+              }
+            `,
+            output: "/rss.xml",
+            title: "yukiisbo.red RSS Feed",
+          },
+        ],
       },
     },
   ],

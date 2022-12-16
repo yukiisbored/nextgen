@@ -1,0 +1,186 @@
+---
+title: "Qubi Research Program Postmortem"
+date: "2021-06-26"
+slug: "qubi-research-postmortem"
+---
+
+Hello world,
+
+After a long 8 week hiatus, I'm finally back with a new game on
+itch.io.
+
+It's called "Qubi Research Program" which is a rather "unique" typing
+game. I came up with the idea for it after reading the theme for the
+[83rd Mini Jam](https://itch.io/jam/mini-jam-83-dread) which was "Dread".
+
+With the word "Dread" in mind, I immediately thought about a shitty
+office job which one require in order to survive. Wouldn't it be silly
+to have a game which replicate [Stanley's job](https://en.wikipedia.org/wiki/The_Stanley_Parable#Gameplay_and_synopsis) but have the dreadful
+feeling of living within a broken system as [Papers, Please](https://en.wikipedia.org/wiki/Papers,_Please).
+
+# Proof of concept
+
+During this time, I was learning [Nim](https://nim-lang.org/) and [Raylib](https://www.raylib.com/) so I decided to
+quickly make a proof-of-concept.
+
+import qubi_poc from "./qubi_poc.mp4";
+
+<video controls="controls">
+  <source src={qubi_poc} type="video/mp4" />
+  <p>Your browser does not support the video tag.</p>
+</video>
+
+The proof-of-concept is only the typing game part, just to see how it
+feels but the idea is there.
+
+At the end of each work day, the player is awarded with a compensation
+based on the amount of words you've written. Each typo made are fined.
+
+The game grows difficult each day as you have to pay various bills and
+make sure that your account isn't surpassing the fixed overdraft
+limit.
+
+My close friends liked the idea and told me that I should make it even
+if it couldn't submit it for the 83rd Mini Jam.
+
+The game uses the same common English words dictionary as [Up Goer Five](https://xkcd.com/1133/)
+and [Thing Explainer](https://blog.xkcd.com/2015/05/13/new-book-thing-explainer/). The reason is simply that I want to only use
+words which everyone have heard and used before.
+
+# Initial foothold
+
+I started writing the game on Friday, 25 June 2021. I decided to do it
+on a public repository in my personal GitLab instance because why not.
+
+There's not a lot of games written in Nim surprisingly so I think it
+could serve as a relatively complete example of a simple game.
+
+I started by writing a simple Hello World and a Nix shell environment
+which have Nim and Emscripten.
+
+Emscripten / WASM has proven to be quite annoying at times. One of the
+annoyances is the cooperative multitasking model which cause the
+entire program to freeze if it is shoved to the background. I'm not
+sure how to fix this bug and couldn't really find any good references
+on how to fix it.
+
+However, once I have a working toolchain setup and make it possible to
+build within Nix _imperatively_, it goes smooth sailing.
+
+# Constructing the Foundation
+
+The architecture of the game is very simple. It uses screens which
+encapsulates a state along with methods for screen initialisation,
+update and deinitialisation. Each screen are simply a subclass of the
+Screen abstract class. No fancy ECS required for something simple and
+quick.
+
+While I am not a fan of object-oriented programming, something like
+this shows why OOP can be good sometimes especially when you need to
+encapsulate both a state and an interface.
+
+I start to appreciate Nim's approach in making both functional /
+imperative / object-oriented approach work together nicely.
+
+In particular, I like that `f(x)` is the same as `x.f`. This is similar to
+the pipeline operator which are popular in functional programming
+languages. This makes `f(g(h(x)))` readable by transforming it to
+`x.h.g.f`.
+
+Of course, there are a lot of things inside Nim which I love: Portable
+compiler, Sum types/ADTs, Macros, Syntax clarity, Infix functions,
+etc.
+
+Honestly, I wish more programming languages reflects Haskell's syntax
+clarity. I hate those which have a lot of noise such as Rust. However,
+I think I'll use Nim for things which does not make sense to do in
+Haskell.
+
+# Basic Gameplay
+
+Porting the code from the proof-of-concept to the foundation is fairly
+simple. Most of it just moving the stateful variables within the
+encapsulated state of the GameScreen class.
+
+Once that's done, I just started working on the "Day End Screen" and
+the "Game Over Screen". The game progress is saved outside of the
+encapsulated state. In other words, they're just global variables.
+
+While a lot of people cringe at mutable global variables, it's fine
+for something quick and dirty and who cares, really. I'm not writing
+software, I'm writing games.
+
+After I got the basic gameplay / minimum viable product, I
+immediately share it with close friends.
+
+# Balancing
+
+Originally, I planned to have a day to be a minute but during initial
+playtesting, I deemed it to be too long so I cut it in half. a week
+was 5 days but it is also too long, I end up cutting it down to 3 days.
+
+So in this game, a day is 30 seconds and a week is 3 days. You also
+pay rent every week which increases every week too. I would like for
+the game to also last a bit long but not too long, unless you really
+want to.
+
+You get 1 point for each word done but you're fined 2 points for each
+error you made. While this seem excessive, this is deliberate to make
+it difficult and have that "dreadful" feeling.
+
+The initial version was fairly difficult even for accurate/fast
+typists. No one was able to surpass 15 days / 7 minutes of gameplay.
+
+To balance, I start by laying down some ground rules. I think it's
+unreasonable to have a speed of 1 word a second. So, I cut it down by
+20% in order to have a bit more room for errors. In the real world,
+rent is ideally at most 60% of your income. With the daily goal value
+in place, I simply make the initial rent to be 60% of the weekly goal.
+
+In the real world, 10% rent increase is excessive but this is a game
+and games need to be short so 10% it is.
+
+With the balanced changes in place, it is now easy to hit more than 30
+days. Nice, now I have more room to make the game more difficult
+
+# Increasing Difficulty
+
+The first thing I did is to have the duration of each day randomized
+to destroy the 30 second rhythm.
+
+Second, I want to shuffle the characters in a word which reflects
+[Typoglycemia](https://en.wikipedia.org/wiki/Typoglycemia) / [Transposed letter effect](https://en.wikipedia.org/wiki/Transposed_letter_effect). This is to make it even more
+annoying once you have the rhythm and expectation to write English
+words.
+
+Third, like in "Papers, Please", I want to have "surprise costs".
+Paying for random things such as coffee, parking, and student loans.
+
+The factor of each "surprise cost" is simply a prime number from 2
+to 59. At each the end of the work day, A random value from 2 to 100
+is generated and if it's multiple of a suprise cost's factor, the
+surprise cost is added. I'm too lazy to do something proper and this
+will do just fine.
+
+# End
+
+import qubi_final from "./qubi_final.mp4";
+
+<video controls="controls">
+  <source src={qubi_final} type="video/mp4" />
+  <p>Your browser does not support the video tag.</p>
+</video>
+
+I think I'm done with this game. It's fairly short and simple and it
+is more of an excercise for me in learning Nim and Raylib.
+
+I love both Nim and Raylib and I think I have found a good stack to
+write small games with. I hope with all of this that I will start
+creating games a bit more frequently. No promises though :-)
+
+Thanks for reading this rather messy and all-over-the-place of a
+postmortem. As of writing, it is 5 AM in the morning and I've been
+awake since 12 PM. I should go to bed&#x2026;
+
+The game is available on [itch.io](https://yukiisbored.itch.io/qubi-research) and its source code (ISC) is
+available on [my personal GitLab](https://git.yukiisbo.red/nagato/qubi/).

@@ -2,6 +2,10 @@ div.about h2 {
   @apply text-2xl font-bold;
 }
 
+div.about h2 a {
+  @apply text-2xl font-bold;
+}
+
 div.about ul {
   @apply list-disc pl-10 mt-2 text-xl;
 }
