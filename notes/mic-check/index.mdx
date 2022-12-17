@@ -1,0 +1,324 @@
+---
+title: "Mic Check"
+date: "2022-12-17"
+slug: "mic-check"
+---
+
+Test, test, hello, is this thing still on?
+
+I've recently made a big shift on this website by moving from [org-mode] to
+[Gatsby] and merge it with [yukiisbo.red].
+
+[org-mode]: https://orgmode.org
+[Gatsby]: https://gatsbyjs.com/
+[yukiisbo.red]: https://yukiisbo.red
+
+# Why move away from org-mode?
+
+While I still prefer org-mode to write plain-text documents, its ecosystem for
+creating a complete static website (i.e. not just a single page HTML document)
+to be very lacking and require additional engineering work.
+
+I've made [one][legacy emacs code] before using [org-publish] and following a
+write-up by [Toon Claes] for his blog [writepermission.com]. It works well for
+the most part and I used that for a while.
+
+[legacy emacs code]: https://git.yukiisbo.red/yuki/dot/-/blob/e5cd9a2daa881211620a853ceed14e4620767944/doom/.doom.d/config.el#L30-165
+[org-publish]: https://orgmode.org/manual/Publishing.html
+[Toon Claes]: https://iotcl.com
+[writepermission.com]: https://writepermission.com
+
+However, while it was nice that my blog reflects my Emacs configuration but it
+has lead to a mountain of annoyances which results in requiring a mountain of
+[hacks to tame this dynamic].
+
+[hacks to tame this dynamic]: https://git.yukiisbo.red/yuki/dot/-/commit/73b2fb607f9d65fdd4f7c3bcce6eb5f286d4e13f#d02f092fbb5b886b250c938b8cac972ef49a22ef_195_191
+
+In addition, embedding content other than text with this setup is painful which
+led me to barely use mediums other than text in my posts.
+
+While this whole thing isn't an excuse for me to be on a long hiatus in terms of
+writing, it left a nagging feeling in my mind for a long time and became one of
+the main deterrents when writing.
+
+# What led me to move away from org-mode to Gatsby?
+
+Recently, I started working with the [Nix Documentation Team] on [nix.dev] which
+uses the [Sphinx] static site generator. I'm not a stranger to it as I worked
+with it when I was working in the [coala] project. While it's not perfect, I
+felt more productive using it.
+
+[Nix Documentation Team]: https://nixos.org/community/teams/documentation.html
+[nix.dev]: https://nix.dev
+[Sphinx]: https://www.sphinx-doc.org/en/master/
+[coala]: https://github.com/coala/coala
+
+It led me to consider dropping org-mode for my website. I was considering
+[ablog] which is an extension for Sphinx to make it for blogging. That felt like
+a hack so I put it at the back burner.
+
+[ablog]: https://ablog.readthedocs.io/
+
+Then, I got reminded of [Gatsby] which is a static site generator that uses [React].
+
+[React]: https://reactjs.org/
+
+# Why Gatsby?
+
+I typically avoid [client-side frameworks] (CSF) as they tend to bloat the website with a
+mountain of unnecessary JavaScript and render the website unusable for people
+who doesn't use JavaScript using extensions like [NoScript] or "limited" web
+browsers like [NetSurf] and [Lynx].
+
+[client-side frameworks]: https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Client-side_JavaScript_frameworks
+[NoScript]: https://noscript.net
+[Netsurf]: https://www.netsurf-browser.org
+[Lynx]: https://lynx.browser.org
+
+However, it seems a lot of things has changed in the frontend world. [Single Page
+Application] (SPA), where JavaScript is necessary to render entire web pages
+client-side, has stopped becoming the only thing available when using CSFs to
+create entire websites.
+
+[Single Page Application]: https://developer.mozilla.org/en-US/docs/Glossary/SPA
+
+I have heard of [Server Side Rendering] (SSR) before but I tend to not use them
+as they used to be really complicated. Even then, the idea of running a server
+that does computation to build web pages on the fly from JavaScript code is
+overkill. Especially when those pages would've been static HTML documents if it
+wasn't for CSFs.
+
+[Server Side Rendering]: https://www.gatsbyjs.com/docs/conceptual/rendering-options/#server-side-rendering-ssr
+
+However, today, [Static Site Generation] (SSG) with CSFs has become a lot more
+accessible, thanks to tools like Gatsby and [SvelteKit].
+
+This approach essentially boils your components written in JavaScript with CSFs
+to static HTML first and then introduces bits of JavaScript on top of them.
+
+Therefore, it makes JavaScript not a requirement for visitors while still
+allowing you to still use the rich ecosystem of CSFs.
+
+[Static site generation]: https://www.gatsbyjs.com/docs/conceptual/rendering-options/#static-site-generation-ssg
+[SvelteKit]: https://kit.svelte.dev
+
+Before you had to use tools like [Jekyll], [Hugo], and others which I never
+liked mainly because they tend to force your hand to follow their pre-built
+structures or use a [terrible template language].
+
+[Jekyll]: https://jekyllrb.com
+[Hugo]: https://gohugo.io
+[terrible templating language]: https://pkg.go.dev/text/template
+
+To be fair, I dislike every single template language (ex. [Jinja2] and [m4])
+because they essentially work like a parasite whose terrible language embeds
+itself inside your documents (HTML markup or even source code). In addition,
+they're unaware of what they're actually manipulating other than they're just
+plain text files, therefore unaware of details in your document like semantics.
+
+[Jinja2]: https://pypi.org/project/Jinja2/
+[m4]: https://www.gnu.org/software/m4/
+
+I personally prefer an approach with [domain-specific languages] (DSL) where you
+represent your problem using a purpose-built language for the domain. You can
+see this in action with tools such as [Dhall], [Lucid], [Laravel's Query Builder].
+
+[domain-specific languages]: https://en.wikipedia.org/wiki/Domain-specific_language
+[Dhall]: https://dhall-lang.org
+[Lucid]: https://hackage.haskell.org/package/lucid
+[Laravel's Query Builder]: https://laravel.com/docs/9.x/queries
+
+Naturally, I like [JSX] which is an HTML embedded domain-specific language that
+boils down into JavaScript expressions that generates [HTML DOM]. This is
+possible thanks to [Babel] using a [transformer].
+
+[JSX]: https://reactjs.org/docs/introducing-jsx.html
+[HTML DOM]: https://developer.mozilla.org/en-US/docs/Glossary/DOM
+[Babel]: https://babeljs.io
+[transformer]: https://babeljs.io/docs/en/babel-plugin-transform-react-jsx#docsNav
+
+Because at the end of the day it's just JavaScript extensions, you can [reuse
+the capabilities] of the JavaScript language and libraries to manipulate DOMs.
+
+[reuse the capabilities]: https://reactjs.org/docs/lists-and-keys.html#rendering-multiple-components
+
+In addition, the [TypeScript version] (TSX) introduces [types] to JSX (and HTML)
+which makes it really pleasant to use.
+
+[TypeScript version]: https://www.typescriptlang.org/docs/handbook/jsx.html#basic-usage
+[types]: https://www.typescriptlang.org/docs/handbook/jsx.html#type-checking
+
+In conclusion, I use Gatsby because it allows me to use the React ecosystem
+while still making the site usable to those who prefer to not run JavaScript.
+
+# Why JavaScript?
+
+A lot of people will disagree with my choice as they simply dislike/hate
+JavaScript and refuse to use anything from its ecosystem.
+
+Recently, I've grown to dislike [dogmas] (ex. JavaScript sucks and harmful).
+
+[dogmas]: https://en.wikipedia.org/wiki/Dogma
+
+By their nature, they blanket over a scope without actually giving any
+meaningful thought other than writing long winded rant-ridden opinionated essays
+on "why `$THING` sucks and harmful".
+
+I believe it's much more productive to make decisions for problems based on
+research that is relevant to the problem at hand and realize that ultimately
+every single decision is a compromise and there's no such thing as a "correct"
+decision. The pursuit of perfection is a fool's errand.
+
+If you'd like an example when dogmas lead to bad decisions, I recommend reading
+[Robert Nystrom]'s [Considering GOTO Harmful] and watching [Tantacrul]'s [Music
+Software & Interface Design: Steinberg's Dorico].
+
+[Robert Nystrom]: https://journal.stuffwithstuff.com
+[Considering GOTO Harmful]: http://craftinginterpreters.com/jumping-back-and-forth.html#design-note
+[Tantacrul]: https://www.youtube.com/@Tantacrul
+[Music Software & Interface Design: Steinberg's Dorico]: https://www.youtube.com/watch?v=S-3wEC6Fj_8
+
+Ultimately, I chose Gatsby because my main focus for this project is making
+written content for y'all to read.
+
+And for my particular use case and preferences, I believe it allows me to spend
+more time writing than everything else related to running a website like this.
+
+The fact that I can reuse the rich ecosystem that surrounds the React framework
+allows me to write less code and more posts.
+
+# Is Gatsby perfect?
+
+Hell no.
+
+It took me a lot of time to convert my org blog posts into [MDX].
+
+[MDX]: https://mdxjs.com
+
+It doesn't help that I kept stumbling upon arcane unhelpful error messages, such
+as:
+
+```shell-session
+$ npm run develop
+...
+success onPreExtractQueries - 0.002s
+success extract queries from components - 1.869s
+success write out requires - 0.007s
+
+ ERROR #gatsby-plugin-mdx_10001  PLUGIN
+
+Failed to compile the file "/home/yuki/src/git.yukiisbo.red/yuki/nextgen/notes/mic-check/index.mdx". Original error message:
+
+Could not parse expression with acorn: Unexpected token
+
+ ERROR  UNKNOWN
+
+Module build failed (from ./node_modules/gatsby/dist/utils/babel-loader.js):
+SyntaxError: /home/yuki/src/git.yukiisbo.red/yuki/nextgen/notes/mic-check/index.mdx: Invalid left-hand side in prefix operation. (1:2)
+
+> 1 | ---
+    |   ^
+  2 | title: "Mic Check"
+  3 | date: "2022-12-17"
+  4 | slug: "mic-check"
+...
+not finished Building development bundle - 2.233s
+```
+
+It doesn't indicate which line resulted in the error nor does it provide any
+helpful indication.
+
+It throws this whenever MDX is unable to parse your "Markdown" file (despite
+them being valid Markdown, so this issue is mainly because their parser is bad).
+
+It really feels like we've reverted back to the 80s with Commodore BASIC where
+syntax errors just results in a single cryptic message: `SYNTAX ERROR`.
+
+Also, I learned the hard way that when `gatsby-config.ts` results in an error,
+it will spam errors that are way more unhelpful because they're unrelated to the
+actual issue.
+
+```shell-session
+$ npm run develop
+...
+success source and transform nodes - 0.071s
+success building schema - 0.219s
+success createPages - 0.005s
+
+ ERROR #85923  GRAPHQL.VALIDATION
+
+There was an error in your GraphQL query:
+
+Cannot query field "allMdx" on type "Query".
+
+If you don't expect "allMdx" to exist on the type "Query" it is most likely a typo. However, if you expect "allMdx" to exist there are a couple of solutions to common problems:
+
+- If you added a new data source and/or changed something inside gatsby-node/gatsby-config, please try a restart of your development server.
+- You want to optionally use your field "allMdx" and right now it is not used anywhere.
+
+It is recommended to explicitly type your GraphQL schema if you want to use optional fields.
+
+File: node_modules/gatsby-plugin-page-creator/create-pages-from-collection-builder.js:45:13
+
+See our docs page for more info on this error: https://gatsby.dev/creating-type-definitions
+
+
+ ERROR #gatsby-plugin-page-creator_12103  PLUGIN
+
+PageCreator: Tried to create pages from the collection builder.
+Unfortunately, the query came back empty. There may be an error in your query:
+
+Cannot query field "allMdx" on type "Query".
+
+File: src/pages/notes/{mdx.frontmatter__slug}.tsx
+...
+```
+
+In addition, `console.log` doesn't work inside `gatsby-config.ts` so good luck!
+
+While this was an absolute pain in the ass, now that everything is setup, the
+end result is quite pleasant.
+
+# Why the merge with yukiisbo.red?
+
+It was quite painful to maintain two different websites uses different tools to
+maintain.
+
+At the same time, having two websites on two domains feels dumb, especially when
+I typically "promote" one over the other.
+
+Therefore, I felt merging them both under one repository and one domain to be
+the way to go.
+
+Now that it's been more than a year since I stopped using social
+medias like Twitter and Mastodon, this website is pretty much the only public
+space that is my own where I express myself and I'd like to keep it that way.
+
+# What's next?
+
+I'm really hoping to write more in the near future.
+
+{/*
+Recently, I started writing journals for my own on a daily basis and it's been
+helping me a lot in life.
+
+A lot of things has changed in my personal life and there plenty of things going
+on but I won't go into it in any detail right now.
+
+Hopefully that will change soon as I really want to write about my personal
+experiences in life more and share them with y'all.
+
+But I don't want to gild the lily so I'll keep them under wraps until the time
+is right.
+*/}
+
+Currently, on my spare time, I'm busy working on documentation with the [Nix
+Documentation Team] and my main focus for now is on the [nix.dev] website.
+
+Other than that, my job title and responsibility changed in my [workplace]. I'm
+now the Chief Technical Officer and I need to get used to that title or find an
+alternative title that isn't grand.
+
+[workplace]: https://founderblocks.io
+
+Anyway, that's all for now. See you next time. Hopefully.
