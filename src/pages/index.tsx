@@ -9,9 +9,8 @@ import Layout from "../components/layout";
 
 const links = [
   { href: "mailto:hi@yukiisbo.red", text: "Email" },
-  { href: "https://matrix.to/#/@yuki:backalley.club", text: "Matrix" },
+  { href: "https://matrix.to/#/@yukiisbored:matrix.org", text: "Matrix" },
   { href: "https://telegram.me/yuki_is_bored", text: "Telegram" },
-  { href: "xmpp:yuki@backalley.club", text: "XMPP" },
   { href: "https://linkedin.com/in/yukiisbored", text: "LinkedIn" },
   { href: "https://github.com/yukiisbored", text: "GitHub" },
   { href: "https://yukiisbored.itch.io", text: "itch.io" },
