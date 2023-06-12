@@ -141,7 +141,7 @@ overused and doesn't demonstrate Nix's strengths.
 Personally, I'm in store for something complex that would make package
 maintainers cry.
 
-So, I made a piece of software called ["YouTube Launcher"](https://git.yukiisbo.red/yuki/youtube-launcher) which
+So, I made a piece of software called ["YouTube Launcher"](https://github.com/yukiisbored/youtube-launcher) which
 provides a simple user interface to watch YouTube videos without a web
 browser!
 
@@ -205,7 +205,7 @@ if __name__ == '__main__':
 
 You don't need to save the snippet above, it shown here only for
 reference. The entire source code is available at
-[git.yukiisbo.red/yuki/youtube-launcher](https://git.yukiisbo.red/yuki/youtube-launcher/).
+[git.yukiisbo.red/yuki/youtube-launcher](https://github.com/yukiisbored/youtube-launcher).
 
 So, what are the pain points of this program?
 
@@ -230,8 +230,10 @@ pkgs.python38Packages.buildPythonApplication {
   pname = "youtube-launcher";
   version = "0.1";
 
-  src = builtins.fetchTarball {
-    url = "https://git.yukiisbo.red/yuki/youtube-launcher/-/archive/0.1/youtube-launcher-0.1.tar.gz";
+  src = pkgs.fetchFromGitHub {
+    owner = "yukiisbored";
+    repo = "youtube-launcher";
+    rev = "04322fbe3f3c1d9a7c620147c2380cd770cb505a";
     sha256 = "043sj6p47s8jk9sj9qnbshzjvxix1pfwzkpwbc5f9dqk5yxgnq13";
   };
 

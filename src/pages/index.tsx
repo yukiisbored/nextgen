@@ -13,7 +13,6 @@ const links = [
   { href: "https://telegram.me/yuki_is_bored", text: "Telegram" },
   { href: "xmpp:yuki@backalley.club", text: "XMPP" },
   { href: "https://linkedin.com/in/yukiisbored", text: "LinkedIn" },
-  { href: "https://git.yukiisbo.red", text: "Projects" },
   { href: "https://github.com/yukiisbored", text: "GitHub" },
   { href: "https://yukiisbored.itch.io", text: "itch.io" },
   { href: "/notes", text: "Notes" },
