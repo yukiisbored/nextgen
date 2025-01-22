@@ -1,0 +1,88 @@
+---
+import { SITE_TITLE } from "../consts";
+
+interface Props {
+	title?: string;
+	author?: string;
+	description?: string;
+	image?: string;
+	type?: string;
+}
+
+const defaults = {
+	title: "yukiisbo.red",
+	author: "Yuki Langley",
+	description: "The personal website of a computer hobbyist dork",
+	type: "website",
+	image: "/profile.png",
+};
+
+const seo = {
+	...defaults,
+	...Astro.props,
+	title: Astro.props.title
+		? `${Astro.props.title} | ${defaults.title}`
+		: defaults.title,
+	image: Astro.props.image
+		? new URL(Astro.url, Astro.props.image)
+		: defaults.image,
+};
+---
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`RSS Feed for ${SITE_TITLE}`}
+      href="/rss.xml"
+    />
+
+    <title>{seo.title}</title>
+
+		<meta name="generator" content={Astro.generator} />
+    <meta name="description" content={seo.description} />
+    <meta name="image" content={seo.image} />
+    <meta name="author" content={seo.author} />
+
+    <meta name="twitter:title" content={seo.title} />
+    <meta name="twitter:description" content={seo.description} />
+    <meta name="twitter:image" content={seo.image} />
+
+    <meta property="og:type" content={seo.type} />
+    <meta property="og:title" content={seo.title} />
+    <meta property="og:description" content={seo.description} />
+    <meta property="og:image" content={seo.image} />
+    <meta property="og:url" content={Astro.url} />
+	</head>
+	<body class="p-4 mt-5 mx-auto max-w-5xl">
+		<slot />
+	</body>
+</html>
+
+<style is:global>
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+a {
+  @apply text-yuki hover:text-yuki-dark active:underline focus:underline font-medium;
+}
+
+.prose-yuki {
+  @apply prose prose-a:text-yuki prose-a:no-underline hover:prose-a:text-yuki-dark prose-h1:text-yuki prose-h2:text-yuki prose-h3:text-yuki prose-h4:text-yuki;
+  max-width: inherit;
+}
+
+.prose-yuki video {
+  @apply w-full aspect-video mx-auto;
+}
+
+.prose-yuki code:not(pre code) {
+  @apply text-yuki;
+}
+</style>
