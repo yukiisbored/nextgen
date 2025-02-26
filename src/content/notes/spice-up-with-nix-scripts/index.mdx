@@ -178,7 +178,7 @@ Only by changing that single line to three lines, this script will now
 run on any machine with Nix installed and it will automagically
 resolve the dependencies magically!
 
-```python
+```console
 $ head -n3 cool-script.py
 #! /usr/bin/env nix-shell
 #! nix-shell -i python -p python38 python38Packages.requests python38Packages.beautifulsoup4 python38Packages.pandas
@@ -225,7 +225,7 @@ with the dependencies for your script.
 
 Wait, does this mean Nix has installed those dependencies and Python?
 
-```python
+```console
 $ python3
 Python 3.8.9 (default, Apr  2 2021, 11:20:07)
 [GCC 10.3.0] on linux

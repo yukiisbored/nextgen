@@ -624,7 +624,7 @@ defined in `nix/sources.json`. Let's modify it.
 
 This is how we import nixpkgs from `nix/sources.nix`:
 
-```console
+```nix
 let
   # Use nixpkgs from Niv
   sources = import ./nix/sources.nix;                     # (1) We import the sources.nix library.
