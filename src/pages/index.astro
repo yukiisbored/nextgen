@@ -1,0 +1,77 @@
+---
+import { Image } from "astro:assets";
+
+import character from "../assets/character.png";
+import circle from "../assets/circle.svg?raw";
+import About from "../components/About.md";
+import Layout from "../layouts/Layout.astro";
+
+const links = [
+	{ href: "mailto:hi@yukiisbo.red", text: "Email" },
+	{ href: "https://matrix.to/#/@yukiisbored:matrix.org", text: "Matrix" },
+	{ href: "https://telegram.me/yuki_is_bored", text: "Telegram" },
+	{ href: "https://linkedin.com/in/yukiisbored", text: "LinkedIn" },
+	{ href: "https://github.com/yukiisbored", text: "GitHub" },
+	{ href: "https://yukiisbored.itch.io", text: "itch.io" },
+	{ href: "/notes", text: "Notes" },
+];
+
+const circleStyle = {
+	backgroundImage: `url('data:image/svg+xml;base64,${btoa(circle)}')`,
+};
+---
+
+<Layout>
+  <div class="flex flex-col md:flex-row">
+    <div
+      class="w-[400px] bg-no-repeat bg-center flex-none mx-auto md:mr-12 md:mt-24"
+      style={circleStyle}
+      >
+      <Image src={character} alt="Drawing of my character by Luciel Teo" class="filter drop-shadow-lg" loading="eager" />
+    </div>
+
+    <div class="flex flex-col">
+      <header class="text-center">
+        <h1 class="font-bold text-7xl">Yuki Langley</h1>
+        <p class="font-medium text-2xl mt-4">
+          Your friendly neighborhood hacker
+        </p>
+      </header>
+
+      <section class="mt-12 text-center">
+        <h2 class="hidden">Links</h2>
+        <ul>
+          {links.map(({ href, text }) => (
+            <li class="inline-block m-2">
+              <a href={href} class="font-bold text-4xl">
+                {text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="mt-12 about">
+        <About />
+      </section>
+    </div>
+  </div>
+</Layout>
+
+<style is:global>
+.about h1 {
+  @apply text-2xl font-bold;
+}
+
+.about h1 a {
+  @apply text-2xl font-bold;
+}
+
+.about ul {
+  @apply list-disc pl-10 mt-2 text-xl;
+}
+
+.about li {
+  @apply mt-2;
+}
+</style>
