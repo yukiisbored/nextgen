@@ -6,20 +6,20 @@ import Layout from "../../layouts/Layout.astro";
 
 const posts = await getCollection("notes");
 
-// Group posts by year
-const groupedPosts = posts.reduce(
-	(acc, post) => {
-		const year = new Date(post.data.date).getFullYear();
-		if (!acc[year]) {
-			acc[year] = [];
-		}
-		acc[year].push(post);
-		return acc;
-	},
-	{} as Record<number, CollectionEntry<"notes">[]>,
-);
+const groupedPosts = posts
+  .filter((post) => !post.data.draft)
+  .reduce(
+    (acc, post) => {
+      const year = new Date(post.data.date).getFullYear();
+      if (!acc[year]) {
+        acc[year] = [];
+      }
+      acc[year].push(post);
+      return acc;
+    },
+    {} as Record<number, CollectionEntry<"notes">[]>,
+  );
 
-// Sort years in descending order
 const sortedYears = Object.keys(groupedPosts).sort(
 	(a, b) => Number(b) - Number(a),
 );
