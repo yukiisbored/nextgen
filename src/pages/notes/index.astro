@@ -52,9 +52,9 @@ const stripMarkdown = (markdown: string) => {
               .map((post) => (
                 <li class="mt-6 pb-6 border-b border-gray-100 last:border-0 md:mt-1 md:pb-0 md:border-0">
                   <div class="flex flex-col md:grid md:grid-cols-[9ch_1fr] md:gap-x-2">
-                    <div class="hidden md:block md:order-1 md:text-base md:text-current">{post.data.date}</div>
+                    <div class="hidden md:block md:order-1">{post.data.date}</div>
                     <div class="md:order-2">
-                      <a href={`/notes/${post.slug}`} class="text-2xl md:text-lg font-medium">
+                      <a href={`/notes/${post.slug}`} class="text-2xl md:text-base font-medium">
                         {post.data.title}
                       </a>
                       <div class="text-sm text-gray-500 mt-2 mb-3 md:mt-1 md:mb-1 md:hidden">{post.data.date}</div>
