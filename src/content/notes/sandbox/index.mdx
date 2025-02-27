@@ -1,0 +1,124 @@
+---
+title: "s&box"
+date: "2025-03-31"
+slug: "sandbox"
+draft: true
+---
+
+There was a time where "what game engine to use?" isn't a question one can answer since at the time.
+The honest truth was: learn OpenGL/DirectX and write your own.
+There were options if you still didn't want to write your own is to use commercial "game maker" tools such as Game Maker, Clickteam Fusion, and Stencyl.
+Of course, there were other options based around Flash, but I missed that, somehow.
+
+This is in stark contrast to today where there are plenty of game engines for the lonesome developer.
+I think it's safe to say that Unity is the pioneer on that front.
+It popularized what a game engine needs to be: an integrated graphical editor, a scripting environment, a foundational framework, and the killer app: an accessible license for hobbyists.
+
+Seeing the success of this model, I believe Unreal followed suit with Unreal Engine 4: replacing the separate tools from UE3 into a single integrated editor and made it available under a more permissive license accessible to hobbyists.
+
+# The experiences
+
+However, today, there's a new way of making games: the "experiences" model popularized by Roblox.
+Roblox isn't new, they have existed for ages at this point, but they essentially take a different model of making game by providing not just the tools, but also the platform to publish and play.
+
+It's not just Roblox, Minecraft is also a good prime example.
+However, for a long time, this was unofficial and community-built.
+Today, Mojang/Microsoft has capitalized on this with Bedrock/Realms/Minecraft Store.
+
+Another notable example is BYOND, but no one remembers that /s.
+
+It is important to note how big of a market the whole experiences model is.
+There are companies which depend on Roblox, Minecraft, and other platforms as their primary source of revenue, akin to YouTubers depending on ad revenue from YouTube.
+An infamous example is Noxcrew who work with companies such as Disney and Warner Bros to make experiences in Minecraft for their IP.
+Not to mention, their own Minecraft Championship (MCC) where famous streamers and YouTubers compete and stream their experience to a wide audience, garnering millions of views.
+
+With all of that in mind, I hope you can see how platforms such as Roblox is appealing to a lot of developers.
+It is not only low barrier of entry for the developer, but also a platform to show your creations to a wide audience.
+In addition, if you're not interested in making an entire game, you can make assets within its marketplace to sell to other developers.
+
+However, unfortunately, Roblox as a business is rather malicious. If you'd like to learn more, I recommend watching ["Investigation: How Roblox Is Exploiting Young Game Developers"] and ["Roblox Pressured Us to Delete Our Video. So We Dug Deeper."] by [People Make Games].
+
+["Investigation: How Roblox Is Exploiting Young Game Developers"]: https://www.youtube.com/watch?v=_gXlauRB1EQ
+["Roblox Pressured Us to Delete Our Video. So We Dug Deeper."]: https://www.youtube.com/watch?v=vTMF6xEiAaY
+[People Make Games]: https://www.youtube.com/@PeopleMakeGames
+
+# The modding "legacy" from Quake
+
+I think there's something that a lot of people have forgotten about game development in the past with the rise of Unity and engines following it.
+Before Unity, if you'd like to make a first-person 3D game, but you don't want to deal with the complexity of making your own engine, one of the options available is to create a mod for Half-Life 2 by using the Source SDK.
+
+This approach provided you a really solid foundation to build your creations on.
+The Source Engine itself was built with the purpose of allowing Valve to create Half-Life 2 and Counter-Strike: Source and a lot of its features are designed to be used by designers to create the game.
+A Source developer can simply use Hammer to create maps and edit metadata files to achieve 80% of the desired result.
+
+This is the approach that I've been missing with Unity, Godot, and other engines like it.
+One of the few which does this is Unreal Engine which has Blueprints to create interactions and tools to create levels.
+
+This approach of modding is not new, it has gone as far back as the 1990s with games like Quake and Doom where id Software provided the community with the tools to create their own maps and even the source code to the game itself.
+The Source Engine and its predecessor (GoldSrc) are modified versions of the Quake Engine.
+
+However, what makes Source Engine special is its integration with Steam, the game distribution platform.
+If you have ever installed a mod for a Source game, you know that it shows up in your Steam library, as if it's a regular game.
+You can even distribute your mod on Steam.
+
+If you're not interested in making a whole game, you can create things for the Steam Workshop.
+For Dota 2, Counter-Strike, and Team Fortress 2, you can create items to be used in the game.
+For Left 4 Dead, you can create add-ons which alters the gameplay experience.
+For Portal 2, you can create custom levels or entire campaigns.
+
+As you can see, there's a lot of similarities in the approach that Valve is taking with their games and the experiences model that Roblox is taking.
+The difference is that Valve is takes a more laissez-faire approach by simply providing the tools and letting the community take it from there.
+
+So, what about Garry's Mod?
+Garry's Mod is a game which lowers the barrier of entry to the Source engine.
+It provides a sandbox gamemode which allows players to play around with assets from other Source games, like Half-Life 2 or Counter-Strike: Source.
+Using the tools provided, players can create interactive experiences by buildings contraptions and environments, akin to a Source mapper with the Hammer Editor.
+Once they're done, they can save their creations and distribute them to the Steam Workshop.
+
+If they're not satisfied with the tools provided, they can create add-ons and leverage the Lua API it provides.
+The Lua API is a game changer for a lot of people as it is a much lower of barrier to entry than Source's C++.
+Not to mention, on top of all of that, you still have the same tools that the Source SDK has provided, like Hammer.
+
+This appeal makes Garry's Mod the obvious gateway to creating unique experiences using the Source Engine.
+We've seen the creation of infamous game modes like Prop Hunt, Trouble in Terrorist Town, Murder, and so much more.
+Or, entire packaged experiences like Elevator: Source and GM: Tower.
+
+However, the unfortunate part is that your creation will be isolated within Garry's Mod.
+Unlike creating an entire mod for Half-Life 2, your creation will only take form as either a server (which has recurring costs to run) or an add-on in the workshop (which has less visibility than the Steam marketplace).
+This limits your reach to only players who play Garry's Mod.
+If you don't know Garry's Mod, you won't know the gamemodes that I have mentioned, other than from YouTube Let's Plays.
+
+After Garry's Mod, Garry created Rust which became a hit.
+However, unlike their previous title, it was built using Unity.
+
+I couldn't find the reason why they chose Unity.
+If I have to make a guess, it's because of the [developer quality-of-life enabled by its C# scripting] and [he became tired of Lua].
+
+[developer quality-of-life enabled by its C# scripting]: https://garry.net/posts/unity-2020
+[he became tired of Lua]: https://garry.net/posts/i-fell-out-of-love-with-lua
+
+# The end of Unity
+
+Unfortunately, it didn't take long for Unity to drop the ball.
+To summarize my personal experience, Unity became a buggy mess to the point it is a gamble whether my project is gonna open on that day.
+There were lot of mysticism within the community to never update your project to a newer version of the engine.
+However, for a lot of people, the thing that made them move away from Unity was in 2023 when they introduced [the runtime fee].
+
+[the runtime fee]: https://gamefromscratch.com/unity-announce-new-pricing-and-plan-changes/
+
+You can read the same frustration with Unity from Garry's perspective from [how much of a buggy mess with half-baked feature it is] to [the stupid decisions they've made], and lastly [the runtime fee which made him quit completely].
+
+[how much of a buggy mess with half-baked feature it is]: https://garry.net/posts/unity-2020
+[the stupid decisions they've made]: https://garry.net/posts/unity-2022
+[the runtime fee which made him quit completely]: https://garry.net/posts/unity-can-get-fucked
+
+Ultimately, all of this provided new meaning for s&box, the spiritual successor to Garry's Mod.
+As you can read from [Explaining s&box], its goal is now to minimize the regret from not providing a way for creations in Garry's Mod to grow beyond it.
+As Unity is no longer an option, Facepunch now need a game engine that they could use for their games.
+For sentimental reasons, they have decided to use Source 2 as a base: the successor to the Source Engine which was built from scratch and accomodates more games other than Half-Life and Counter-Strike.
+
+[Explaining s&box]: https://sbox.game/news/july-update-97c0fa3c/explaining-sbox
+
+# s&box Review
+
+TODO
