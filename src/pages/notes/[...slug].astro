@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Admonition from "../../components/Admonition.astro";
+import { description } from "../../utils/seo";
 
 export async function getStaticPaths() {
 	const posts = await getCollection("notes");
@@ -27,7 +28,7 @@ const tableOfContents =
 		: null;
 ---
 
-<Layout title={post.data.title}>
+<Layout title={post.data.title} type="article" description={post.data.description || description(post.body)}>
   <div class="flex flex-col">
     <header>
       <div class="text-right text-sm md:text-xs">
