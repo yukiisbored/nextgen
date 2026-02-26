@@ -1,10 +1,12 @@
+type Platform = "PC" | "Xbox" | "PlayStation";
+
 type ModMethod = {
   type: "mod";
   name: string;
   href: string;
 };
 
-type CrossPlay = "cross-platform" | "inter-generation";
+type CrossPlay = "cross-platform" | "inter-generation" | Array<Platform>;
 
 type BuiltInMethod = {
   type: "built-in";
@@ -120,23 +122,17 @@ export const games: Array<Game | Series> = [
         name: "PowerWash Simulator",
         method: {
           type: "built-in",
-          crossPlay: "cross-platform",
+          crossPlay: ["PC", "Xbox"],
         },
         connectionModes: [{ type: "peer-to-peer" }],
-        notes: [
-          "Crossplay is only available on PC and Xbox, so if you're playing with someone on PlayStation, you need to be on the same platform.",
-        ],
       },
       {
         name: "PowerWash Simulator 2",
         method: {
           type: "built-in",
-          crossPlay: "cross-platform",
+          crossPlay: ["PC", "Xbox"],
         },
         connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
-        notes: [
-          "Crossplay is only available on PC and Xbox, so if you're playing with someone on PlayStation, you need to be on the same platform.",
-        ],
       },
     ],
   },

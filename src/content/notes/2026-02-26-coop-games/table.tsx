@@ -16,7 +16,10 @@ function GameRow(game: Game) {
     }
 
     if (game.method.crossPlay) {
-      features.push(`Crossplay (${game.method.crossPlay})`);
+      const crossPlay = Array.isArray(game.method.crossPlay)
+        ? game.method.crossPlay.join("/")
+        : game.method.crossPlay;
+      features.push(`Crossplay (${crossPlay})`);
     }
 
     return features;
