@@ -41,26 +41,11 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "peer-to-peer" }],
   },
   {
-    name: "PowerWash Simulator",
+    name: "Last Epoch",
     method: {
       type: "built-in",
-      crossPlay: "cross-platform",
     },
     connectionModes: [{ type: "peer-to-peer" }],
-    notes: [
-      "Crossplay is only available on PC and Xbox, so if you're playing with someone on PlayStation, you need to be on the same platform.",
-    ],
-  },
-  {
-    name: "PowerWash Simulator 2",
-    method: {
-      type: "built-in",
-      crossPlay: "cross-platform",
-    },
-    connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
-    notes: [
-      "Crossplay is only available on PC and Xbox, so if you're playing with someone on PlayStation, you need to be on the same platform.",
-    ],
   },
   {
     name: "DOOM (1993)",
@@ -126,6 +111,33 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "server" }, { type: "peer-to-peer" }],
     notes: [
       "[Exaroton](https://exaroton.com/:en/) offers Hypixel hosting with mod support that is billed on a per hour basis when the server is active/online.",
+    ],
+  },
+  {
+    series: "PowerWash Simulator",
+    games: [
+      {
+        name: "PowerWash Simulator",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+        notes: [
+          "Crossplay is only available on PC and Xbox, so if you're playing with someone on PlayStation, you need to be on the same platform.",
+        ],
+      },
+      {
+        name: "PowerWash Simulator 2",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+        },
+        connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+        notes: [
+          "Crossplay is only available on PC and Xbox, so if you're playing with someone on PlayStation, you need to be on the same platform.",
+        ],
+      },
     ],
   },
   {
