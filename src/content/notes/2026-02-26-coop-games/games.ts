@@ -19,7 +19,11 @@ type Method = ModMethod | BuiltInMethod;
 type ConnectionMode =
   | { type: "cloud-server"; paid?: true }
   | { type: "self-hosted-server" }
-  | { type: "split-screen"; mod?: Omit<ModMethod, "type"> }
+  | {
+      type: "split-screen";
+      mod?: Omit<ModMethod, "type">;
+      platforms?: Array<Platform>;
+    }
   | { type: "peer-to-peer"; mod?: Omit<ModMethod, "type"> };
 
 export type Game = {
@@ -36,6 +40,31 @@ export type Series = {
 };
 
 export const games: Array<Game | Series> = [
+  {
+    name: "Don't Starve Together",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [
+      { type: "self-hosted-server" },
+      { type: "peer-to-peer" },
+      { type: "split-screen", platforms: ["Xbox", "PlayStation"] },
+    ],
+  },
+  {
+    name: "Baldur's Gate 3",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "peer-to-peer" }],
+  },
+  {
+    name: "The Binding of Isaac: Repentance",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+  },
   {
     name: "Stardew Valley",
     method: {
@@ -65,6 +94,36 @@ export const games: Array<Game | Series> = [
       type: "built-in",
     },
     connectionModes: [{ type: "self-hosted-server" }],
+  },
+  {
+    series: "Dark Souls",
+    games: [
+      {
+        name: "Dark Souls: Remastered",
+        method: {
+          type: "mod",
+          name: "Seamless Co-op",
+          href: "https://www.nexusmods.com/darksoulsremastered/mods/899",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "Dark Souls 2",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "Dark Souls 3",
+        method: {
+          type: "mod",
+          name: "Seamless Co-op",
+          href: "https://www.nexusmods.com/darksouls3/mods/1895",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+    ],
   },
   {
     series: "Hazelight Studios",

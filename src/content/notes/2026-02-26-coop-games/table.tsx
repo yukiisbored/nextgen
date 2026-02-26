@@ -43,35 +43,43 @@ function GameRow(game: Game) {
   const connectionModes = useMemo(() => {
     return game.connectionModes
       .map((mode) => {
-        if (mode.type === "official-hosted-server") {
+        if (mode.type === "cloud-server") {
           return (
             <span key={mode.type}>
-              Official-hosted Server
+              Cloud server
               {mode.paid && <span> (Paid)</span>}
             </span>
           );
         }
 
         if (mode.type === "self-hosted-server") {
-          return <span>Self-hosted Server</span>;
+          return <span>Self-hosted server</span>;
         }
 
         const type =
           mode.type === "split-screen" ? "Split-Screen" : "Peer-to-Peer";
 
-        if (mode.mod) {
-          return (
-            <span key={mode.type}>
-              {type} (Mod:{" "}
-              <a href={mode.mod.href} target="_blank" rel="noopener noreferrer">
-                {mode.mod.name}
-              </a>
-              )
-            </span>
-          );
-        }
+        const mod = mode.mod && (
+          <>
+            <span> (Mod: </span>
+            <a href={mode.mod.href} target="_blank" rel="noopener noreferrer">
+              {mode.mod.name}
+            </a>
+            <span>)</span>
+          </>
+        );
 
-        return <span key={mode.type}>{type}</span>;
+        const supportedPlatforms = "platforms" in mode && (
+          <span> ({mode.platforms?.join("/")})</span>
+        );
+
+        return (
+          <span key={mode.type}>
+            {type}
+            {supportedPlatforms}
+            {mod}
+          </span>
+        );
       })
       .reduce((prev, curr) => {
         return (
