@@ -123,10 +123,16 @@ export const games: Array<Game | Series> = [
     method: {
       type: "built-in",
     },
-    connectionModes: [{ type: "self-hosted-server" }],
+    connectionModes: [
+      { type: "self-hosted-server", platforms: ["PC"] },
+      { type: "split-screen", platforms: ["Xbox", "PlayStation"] },
+    ],
     features: {
       modSupport: true,
     },
+    notes: [
+      "You can use [Zandronum](https://zandronum.com/) to play with more than 4 players and get better mod support.",
+    ],
   },
   {
     name: "NZ: Portable (COD Zombies Demake)",
@@ -496,7 +502,7 @@ export const games: Array<Game | Series> = [
           modSupport: true,
         },
         notes: [
-          "Hypixel offers private vanilla SMP for VIP+ members (one-time-purchase)at no additional cost.",
+          "Hypixel offers private vanilla SMP for VIP+ members (one-time-purchase) at no additional cost.",
           "[Exaroton](https://exaroton.com/:en/) offers Minecraft hosting with mod support that is billed on a per hour basis when the server is active/online.",
         ],
       },
