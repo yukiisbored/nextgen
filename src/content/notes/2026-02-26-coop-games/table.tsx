@@ -165,6 +165,18 @@ function Row(item: Game | Series) {
 }
 
 export function Table() {
+  const allGames = useMemo(() => {
+    const seriesGames = games
+      .filter((item): item is Series => "series" in item)
+      .flatMap((series) => series.games);
+    const standaloneGames = games.filter(
+      (item): item is Game => !("series" in item),
+    );
+    return standaloneGames.concat(seriesGames);
+  }, []);
+  const allSeries = useMemo(() => {
+    return games.filter((item): item is Series => "series" in item);
+  }, []);
   const sorted = useMemo(() => {
     const sortedGames: Array<Game | Series> = games
       .filter((item): item is Game => !("series" in item))
@@ -176,21 +188,26 @@ export function Table() {
   }, []);
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Game</th>
-          <th>Method</th>
-          <th>Connection Modes</th>
-          <th>Special Features</th>
-          <th>Notes</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sorted.map((item) => (
-          <Row key={"series" in item ? item.series : item.name} {...item} />
-        ))}
-      </tbody>
-    </table>
+    <>
+      <table>
+        <thead>
+          <tr>
+            <th>Game</th>
+            <th>Method</th>
+            <th>Connection Modes</th>
+            <th>Special Features</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sorted.map((item) => (
+            <Row key={"series" in item ? item.series : item.name} {...item} />
+          ))}
+        </tbody>
+      </table>
+      <p className="mt-4 text-sm text-neutral-600">
+        {allGames.length} games total, including {allSeries.length} series.
+      </p>
+    </>
   );
 }
