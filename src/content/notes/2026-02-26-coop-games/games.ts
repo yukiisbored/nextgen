@@ -649,6 +649,44 @@ export const games: Array<Game | Series> = [
     ],
   },
   {
+    series: "Diablo",
+    games: [
+      {
+        name: "Diablo",
+        method: {
+          type: "mod",
+          name: "DevilutionX",
+          href: "https://github.com/diasurgical/DevilutionX",
+        },
+        connectionModes: [{ type: "self-hosted-server" }],
+      },
+      {
+        name: "Diablo II: Resurrected",
+        method: {
+          type: "built-in",
+          crossProgression: true,
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "Diablo III",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "Diablo IV",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+          crossProgression: true,
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+    ],
+  },
+  {
     series: "Borderlands",
     games: [
       {
