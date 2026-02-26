@@ -129,6 +129,13 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "peer-to-peer" }, { type: "self-hosted-server" }],
   },
   {
+    name: "Barony",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+  },
+  {
     series: "Far Cry",
     games: [
       {
