@@ -6,12 +6,13 @@ type ModMethod = {
   href: string;
 };
 
-type CrossPlay = "cross-platform" | "inter-generation" | Array<Platform>;
+type CrossPlay = "cross-platform" | "cross-generation" | Array<Platform>;
 
 type BuiltInMethod = {
   type: "built-in";
   friendPass?: true;
   crossPlay?: CrossPlay;
+  crossProgression?: true;
 };
 
 type Method = ModMethod | BuiltInMethod;
@@ -55,6 +56,8 @@ export const games: Array<Game | Series> = [
     name: "Baldur's Gate 3",
     method: {
       type: "built-in",
+      crossPlay: "cross-platform",
+      crossProgression: true,
     },
     connectionModes: [{ type: "peer-to-peer" }],
   },
@@ -69,7 +72,7 @@ export const games: Array<Game | Series> = [
     name: "Stardew Valley",
     method: {
       type: "built-in",
-      crossPlay: "inter-generation",
+      crossPlay: "cross-generation",
     },
     connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
   },
@@ -102,6 +105,7 @@ export const games: Array<Game | Series> = [
         name: "Far Cry 4",
         method: {
           type: "built-in",
+          crossPlay: "cross-generation",
         },
         connectionModes: [{ type: "peer-to-peer" }],
         notes: [
@@ -113,6 +117,7 @@ export const games: Array<Game | Series> = [
         name: "Far Cry 5",
         method: {
           type: "built-in",
+          crossPlay: "cross-generation",
         },
         connectionModes: [{ type: "peer-to-peer" }],
         notes: [
@@ -124,6 +129,7 @@ export const games: Array<Game | Series> = [
         name: "Far Cry New Dawn",
         method: {
           type: "built-in",
+          crossPlay: "cross-generation",
         },
         connectionModes: [{ type: "peer-to-peer" }],
         notes: [
@@ -135,6 +141,8 @@ export const games: Array<Game | Series> = [
         name: "Far Cry 6",
         method: {
           type: "built-in",
+          crossPlay: "cross-generation",
+          crossProgression: true,
         },
         connectionModes: [{ type: "peer-to-peer" }],
         notes: [
@@ -182,7 +190,7 @@ export const games: Array<Game | Series> = [
         method: {
           type: "built-in",
           friendPass: true,
-          crossPlay: "inter-generation",
+          crossPlay: "cross-generation",
         },
         connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
         notes: [
@@ -194,7 +202,7 @@ export const games: Array<Game | Series> = [
         method: {
           type: "built-in",
           friendPass: true,
-          crossPlay: "inter-generation",
+          crossPlay: "cross-generation",
         },
         connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
         notes: [
@@ -206,7 +214,7 @@ export const games: Array<Game | Series> = [
         method: {
           type: "built-in",
           friendPass: true,
-          crossPlay: "inter-generation",
+          crossPlay: "cross-generation",
         },
         connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
         notes: [
@@ -216,28 +224,45 @@ export const games: Array<Game | Series> = [
     ],
   },
   {
-    name: "Minecraft",
-    method: {
-      type: "built-in",
-    },
-    connectionModes: [
-      { type: "cloud-server", paid: true },
-      { type: "self-hosted-server" },
+    series: "Minecraft",
+    games: [
       {
-        type: "peer-to-peer",
-        mod: { name: "Essential.gg", href: "https://essential.gg/en" },
-      },
-      {
-        type: "split-screen",
-        mod: {
-          name: "Controlify",
-          href: "https://modrinth.com/mod/controlify",
+        name: "Minecraft: Bedrock Edition",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
         },
+        connectionModes: [
+          { type: "cloud-server", paid: true },
+          { type: "self-hosted-server" },
+          { type: "peer-to-peer" },
+        ],
       },
-    ],
-    notes: [
-      "Hypixel offers private vanilla SMP for VIP+ members (one-time-purchase)at no additional cost.",
-      "[Exaroton](https://exaroton.com/:en/) offers Minecraft hosting with mod support that is billed on a per hour basis when the server is active/online.",
+      {
+        name: "Minecraft: Java Edition",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [
+          { type: "cloud-server", paid: true },
+          { type: "self-hosted-server" },
+          {
+            type: "peer-to-peer",
+            mod: { name: "Essential.gg", href: "https://essential.gg/en" },
+          },
+          {
+            type: "split-screen",
+            mod: {
+              name: "Controlify",
+              href: "https://modrinth.com/mod/controlify",
+            },
+          },
+        ],
+        notes: [
+          "Hypixel offers private vanilla SMP for VIP+ members (one-time-purchase)at no additional cost.",
+          "[Exaroton](https://exaroton.com/:en/) offers Minecraft hosting with mod support that is billed on a per hour basis when the server is active/online.",
+        ],
+      },
     ],
   },
   {

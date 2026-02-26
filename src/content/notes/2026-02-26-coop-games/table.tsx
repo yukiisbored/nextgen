@@ -22,6 +22,10 @@ function GameRow(game: Game) {
       features.push(`Crossplay (${crossPlay})`);
     }
 
+    if (game.method.crossProgression) {
+      features.push("Cross-progression");
+    }
+
     return features;
   }, [game.method]);
 
