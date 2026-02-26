@@ -162,6 +162,25 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
   },
   {
+    series: "PAYDAY",
+    games: [
+      {
+        name: "PAYDAY: The Heist",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "PAYDAY 2",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+    ],
+  },
+  {
     series: "Left 4 Dead",
     games: [
       {
