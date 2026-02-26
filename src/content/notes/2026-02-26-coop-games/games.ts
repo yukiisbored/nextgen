@@ -146,6 +146,22 @@ export const games: Array<Game | Series> = [
     ],
   },
   {
+    name: "Halo: The Master Chief Collection",
+    includes: [
+      "Halo: Combat Evolved",
+      "Halo 2",
+      "Halo 3",
+      "Halo 3: ODST",
+      "Halo: Reach",
+      "Halo 4",
+    ],
+    method: {
+      type: "built-in",
+      crossPlay: "cross-platform",
+    },
+    connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+  },
+  {
     series: "Left 4 Dead",
     games: [
       {
