@@ -243,6 +243,7 @@ export const games: Array<Game | Series> = [
           { type: "cloud-server", paid: true },
           { type: "self-hosted-server" },
           { type: "peer-to-peer" },
+          { type: "split-screen", platforms: ["Xbox", "PlayStation"] },
         ],
       },
       {
@@ -276,7 +277,7 @@ export const games: Array<Game | Series> = [
           type: "built-in",
           crossPlay: "cross-platform",
         },
-        connectionModes: [{ type: "peer-to-peer" }],
+        connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
       },
       {
         name: "Minecraft Legends",
@@ -284,7 +285,7 @@ export const games: Array<Game | Series> = [
           type: "built-in",
           crossPlay: "cross-platform",
         },
-        connectionModes: [{ type: "peer-to-peer" }],
+        connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
       },
     ],
   },
