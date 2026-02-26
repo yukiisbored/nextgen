@@ -34,7 +34,21 @@ export type Series = {
 
 export const games: Array<Game | Series> = [
   {
-    name: "DOOM",
+    name: "Portal 2",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "peer-to-peer" }],
+  },
+  {
+    name: "PowerWash Simulator",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "peer-to-peer" }],
+  },
+  {
+    name: "DOOM (1993)",
     includes: ["DOOM II"],
     method: {
       type: "built-in",
