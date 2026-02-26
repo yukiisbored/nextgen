@@ -121,6 +121,14 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "self-hosted-server" }],
   },
   {
+    name: "Satisfactory",
+    method: {
+      type: "built-in",
+      crossPlay: ["Xbox", "PlayStation"],
+    },
+    connectionModes: [{ type: "peer-to-peer" }, { type: "self-hosted-server" }],
+  },
+  {
     series: "Far Cry",
     games: [
       {
