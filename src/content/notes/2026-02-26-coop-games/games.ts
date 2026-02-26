@@ -136,6 +136,52 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
   },
   {
+    name: "Warhammer 40K: Space Marine 2",
+    method: {
+      type: "built-in",
+      crossPlay: "cross-platform",
+    },
+    connectionModes: [{ type: "peer-to-peer" }],
+  },
+  {
+    name: "Hytale",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "self-hosted-server" }, { type: "peer-to-peer" }],
+    notes: [
+      "[Exaroton](https://exaroton.com/:en/) offers Hypixel hosting with mod support that is billed on a per hour basis when the server is active/online.",
+    ],
+  },
+  {
+    series: "Monster Hunter",
+    games: [
+      {
+        name: "Monster Hunter Rise",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-generation",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "Monster Hunter World",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "Monster Hunter Wilds",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+    ],
+  },
+  {
     series: "Far Cry",
     games: [
       {
@@ -317,16 +363,6 @@ export const games: Array<Game | Series> = [
         },
         connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
       },
-    ],
-  },
-  {
-    name: "Hytale",
-    method: {
-      type: "built-in",
-    },
-    connectionModes: [{ type: "self-hosted-server" }, { type: "peer-to-peer" }],
-    notes: [
-      "[Exaroton](https://exaroton.com/:en/) offers Hypixel hosting with mod support that is billed on a per hour basis when the server is active/online.",
     ],
   },
   {
