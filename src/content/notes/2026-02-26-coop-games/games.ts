@@ -114,6 +114,13 @@ export const games: Array<Game | Series> = [
     ],
   },
   {
+    name: "Vintage Story",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "self-hosted-server" }],
+  },
+  {
     series: "Far Cry",
     games: [
       {
