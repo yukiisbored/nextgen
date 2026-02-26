@@ -26,8 +26,12 @@ function GameRow(game: Game) {
       features.push("Cross-progression");
     }
 
+    if (game.features?.modSupport) {
+      features.push("Mod support");
+    }
+
     return features;
-  }, [game.method]);
+  }, [game]);
 
   const method = useMemo(() => {
     if (game.method.type === "built-in") {

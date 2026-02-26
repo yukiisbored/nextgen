@@ -27,12 +27,17 @@ type ConnectionMode =
     }
   | { type: "peer-to-peer"; mod?: Omit<ModMethod, "type"> };
 
+type Features = {
+  modSupport?: true;
+};
+
 export type Game = {
   name: string;
   includes?: Array<string>;
   method: Method;
   connectionModes: Array<ConnectionMode>;
   notes?: Array<string>;
+  features?: Features;
 };
 
 export type Series = {
@@ -41,6 +46,16 @@ export type Series = {
 };
 
 export const games: Array<Game | Series> = [
+  {
+    name: "Factorio",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "self-hosted-server" }, { type: "peer-to-peer" }],
+    features: {
+      modSupport: true,
+    },
+  },
   {
     name: "Don't Starve Together",
     method: {
@@ -51,6 +66,9 @@ export const games: Array<Game | Series> = [
       { type: "peer-to-peer" },
       { type: "split-screen", platforms: ["Xbox", "PlayStation"] },
     ],
+    features: {
+      modSupport: true,
+    },
   },
   {
     name: "Baldur's Gate 3",
@@ -67,6 +85,9 @@ export const games: Array<Game | Series> = [
       type: "built-in",
     },
     connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+    features: {
+      modSupport: true,
+    },
   },
   {
     name: "Stardew Valley",
@@ -75,6 +96,9 @@ export const games: Array<Game | Series> = [
       crossPlay: "cross-generation",
     },
     connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+    features: {
+      modSupport: true,
+    },
   },
   {
     name: "Portal 2",
@@ -82,6 +106,9 @@ export const games: Array<Game | Series> = [
       type: "built-in",
     },
     connectionModes: [{ type: "peer-to-peer" }],
+    features: {
+      modSupport: true,
+    },
   },
   {
     name: "Last Epoch",
@@ -97,6 +124,9 @@ export const games: Array<Game | Series> = [
       type: "built-in",
     },
     connectionModes: [{ type: "self-hosted-server" }],
+    features: {
+      modSupport: true,
+    },
   },
   {
     name: "NZ: Portable (COD Zombies Demake)",
@@ -112,6 +142,9 @@ export const games: Array<Game | Series> = [
       { type: "peer-to-peer" },
       { type: "split-screen", platforms: ["Xbox", "PlayStation"] },
     ],
+    features: {
+      modSupport: true,
+    },
   },
   {
     name: "Vintage Story",
@@ -119,6 +152,9 @@ export const games: Array<Game | Series> = [
       type: "built-in",
     },
     connectionModes: [{ type: "self-hosted-server" }],
+    features: {
+      modSupport: true,
+    },
   },
   {
     name: "Satisfactory",
@@ -127,6 +163,9 @@ export const games: Array<Game | Series> = [
       crossPlay: ["Xbox", "PlayStation"],
     },
     connectionModes: [{ type: "peer-to-peer" }, { type: "self-hosted-server" }],
+    features: {
+      modSupport: true,
+    },
   },
   {
     name: "Barony",
@@ -134,6 +173,9 @@ export const games: Array<Game | Series> = [
       type: "built-in",
     },
     connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+    features: {
+      modSupport: true,
+    },
   },
   {
     name: "Hytale",
@@ -141,6 +183,9 @@ export const games: Array<Game | Series> = [
       type: "built-in",
     },
     connectionModes: [{ type: "self-hosted-server" }, { type: "peer-to-peer" }],
+    features: {
+      modSupport: true,
+    },
     notes: [
       "[Exaroton](https://exaroton.com/:en/) offers Hypixel hosting with mod support that is billed on a per hour basis when the server is active/online.",
     ],
@@ -160,6 +205,15 @@ export const games: Array<Game | Series> = [
       crossPlay: "cross-platform",
     },
     connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+  },
+  {
+    name: "Super Mario 64",
+    method: {
+      type: "mod",
+      name: "sm64coopdx",
+      href: "https://github.com/coop-deluxe/sm64coopdx",
+    },
+    connectionModes: [{ type: "peer-to-peer" }],
   },
   {
     series: "PAYDAY",
@@ -196,6 +250,9 @@ export const games: Array<Game | Series> = [
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+        features: {
+          modSupport: true,
+        },
       },
     ],
   },
@@ -411,6 +468,9 @@ export const games: Array<Game | Series> = [
           { type: "peer-to-peer" },
           { type: "split-screen", platforms: ["Xbox", "PlayStation"] },
         ],
+        features: {
+          modSupport: true,
+        },
       },
       {
         name: "Minecraft: Java Edition",
@@ -432,6 +492,9 @@ export const games: Array<Game | Series> = [
             },
           },
         ],
+        features: {
+          modSupport: true,
+        },
         notes: [
           "Hypixel offers private vanilla SMP for VIP+ members (one-time-purchase)at no additional cost.",
           "[Exaroton](https://exaroton.com/:en/) offers Minecraft hosting with mod support that is billed on a per hour basis when the server is active/online.",
@@ -488,6 +551,9 @@ export const games: Array<Game | Series> = [
           href: "https://store.steampowered.com/app/225840/Sven_Coop/",
         },
         connectionModes: [{ type: "peer-to-peer" }],
+        features: {
+          modSupport: true,
+        },
         notes: ["You don't need to own Half-Life to play Sven Co-op."],
       },
       {
@@ -542,6 +608,9 @@ export const games: Array<Game | Series> = [
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
+        features: {
+          modSupport: true,
+        },
         notes: [
           "It is recommended to use [t7patch](https://github.com/shiversoftdev/t7patch) to prevent exploits.",
           "Though, this isn't necessary since you're playing with a friend, unless they're a massive dick.",
