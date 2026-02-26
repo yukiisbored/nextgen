@@ -106,6 +106,14 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "self-hosted-server" }],
   },
   {
+    name: "Terraria",
+    method: { type: "built-in", crossPlay: "cross-generation" },
+    connectionModes: [
+      { type: "peer-to-peer" },
+      { type: "split-screen", platforms: ["Xbox", "PlayStation"] },
+    ],
+  },
+  {
     series: "Far Cry",
     games: [
       {
