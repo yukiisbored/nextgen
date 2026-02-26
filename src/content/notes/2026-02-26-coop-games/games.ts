@@ -19,7 +19,7 @@ type Method = ModMethod | BuiltInMethod;
 
 type ConnectionMode =
   | { type: "cloud-server"; paid?: true }
-  | { type: "self-hosted-server" }
+  | { type: "self-hosted-server"; platforms?: Array<Platform> }
   | {
       type: "split-screen";
       mod?: Omit<ModMethod, "type">;
@@ -464,7 +464,7 @@ export const games: Array<Game | Series> = [
         },
         connectionModes: [
           { type: "cloud-server", paid: true },
-          { type: "self-hosted-server" },
+          { type: "self-hosted-server", platforms: ["PC"] },
           { type: "peer-to-peer" },
           { type: "split-screen", platforms: ["Xbox", "PlayStation"] },
         ],

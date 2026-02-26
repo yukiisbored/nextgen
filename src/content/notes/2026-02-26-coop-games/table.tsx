@@ -60,14 +60,14 @@ function GameRow(game: Game) {
           );
         }
 
-        if (mode.type === "self-hosted-server") {
-          return <span>Self-hosted server</span>;
-        }
-
         const type =
-          mode.type === "split-screen" ? "Split-Screen" : "Peer-to-Peer";
+          mode.type === "split-screen"
+            ? "Split-screen"
+            : mode.type === "self-hosted-server"
+              ? "Self-hosted server"
+              : "Peer-to-Peer";
 
-        const mod = mode.mod && (
+        const mod = "mod" in mode && mode.mod && (
           <>
             <span> (Mod: </span>
             <a href={mode.mod.href} target="_blank" rel="noopener noreferrer">
