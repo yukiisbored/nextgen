@@ -136,14 +136,6 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
   },
   {
-    name: "Warhammer 40K: Space Marine 2",
-    method: {
-      type: "built-in",
-      crossPlay: "cross-platform",
-    },
-    connectionModes: [{ type: "peer-to-peer" }],
-  },
-  {
     name: "Hytale",
     method: {
       type: "built-in",
@@ -151,6 +143,69 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "self-hosted-server" }, { type: "peer-to-peer" }],
     notes: [
       "[Exaroton](https://exaroton.com/:en/) offers Hypixel hosting with mod support that is billed on a per hour basis when the server is active/online.",
+    ],
+  },
+  {
+    series: "Left 4 Dead",
+    games: [
+      {
+        name: "Left 4 Dead",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "Left 4 Dead 2",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+      },
+    ],
+  },
+  {
+    series: "Warhammer 40K",
+    games: [
+      {
+        name: "Warhammer 40K: Rogue Trader",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "Warhammer 40K: Space Hulk Deathwing",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "Warhammer 40K: Dawn of War",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "Warhammer 40K: Battlefleet Gothic Armada II",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "Warhammer 40K: Space Marine 2",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
     ],
   },
   {
