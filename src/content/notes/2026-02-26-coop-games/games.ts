@@ -44,8 +44,23 @@ export const games: Array<Game | Series> = [
     name: "PowerWash Simulator",
     method: {
       type: "built-in",
+      crossPlay: "cross-platform",
     },
     connectionModes: [{ type: "peer-to-peer" }],
+    notes: [
+      "Crossplay is only available on PC and Xbox, so if you're playing with someone on PlayStation, you need to be on the same platform.",
+    ],
+  },
+  {
+    name: "PowerWash Simulator 2",
+    method: {
+      type: "built-in",
+      crossPlay: "cross-platform",
+    },
+    connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+    notes: [
+      "Crossplay is only available on PC and Xbox, so if you're playing with someone on PlayStation, you need to be on the same platform.",
+    ],
   },
   {
     name: "DOOM (1993)",
@@ -89,6 +104,13 @@ export const games: Array<Game | Series> = [
       {
         type: "peer-to-peer",
         mod: { name: "Essential.gg", href: "https://essential.gg/en" },
+      },
+      {
+        type: "split-screen",
+        mod: {
+          name: "Controlify",
+          href: "https://modrinth.com/mod/controlify",
+        },
       },
     ],
     notes: [
