@@ -99,6 +99,13 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "self-hosted-server" }],
   },
   {
+    name: "NZ: Portable (COD Zombies Demake)",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "self-hosted-server" }],
+  },
+  {
     series: "Far Cry",
     games: [
       {
