@@ -263,6 +263,22 @@ export const games: Array<Game | Series> = [
           "[Exaroton](https://exaroton.com/:en/) offers Minecraft hosting with mod support that is billed on a per hour basis when the server is active/online.",
         ],
       },
+      {
+        name: "Minecraft Dungeons",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "Minecraft Legends",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
     ],
   },
   {
