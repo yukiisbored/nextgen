@@ -17,7 +17,8 @@ type BuiltInMethod = {
 type Method = ModMethod | BuiltInMethod;
 
 type ConnectionMode =
-  | { type: "server" }
+  | { type: "cloud-server"; paid?: true }
+  | { type: "self-hosted-server" }
   | { type: "split-screen"; mod?: Omit<ModMethod, "type"> }
   | { type: "peer-to-peer"; mod?: Omit<ModMethod, "type"> };
 
@@ -35,6 +36,14 @@ export type Series = {
 };
 
 export const games: Array<Game | Series> = [
+  {
+    name: "Stardew Valley",
+    method: {
+      type: "built-in",
+      crossPlay: "inter-generation",
+    },
+    connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+  },
   {
     name: "Portal 2",
     method: {
@@ -55,30 +64,47 @@ export const games: Array<Game | Series> = [
     method: {
       type: "built-in",
     },
-    connectionModes: [{ type: "server" }],
+    connectionModes: [{ type: "self-hosted-server" }],
   },
   {
-    name: "A Way Out",
-    method: {
-      type: "built-in",
-      friendPass: true,
-      crossPlay: "inter-generation",
-    },
-    connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
-    notes: [
-      "On PC, the friend pass is only available from the EA app, but you can still play with someone who owns the game on Steam or other storefronts.",
-    ],
-  },
-  {
-    name: "It Takes Two",
-    method: {
-      type: "built-in",
-      friendPass: true,
-      crossPlay: "inter-generation",
-    },
-    connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
-    notes: [
-      "On PC, the friend pass is only available from the EA app, but you can still play with someone who owns the game on Steam or other storefronts.",
+    series: "Hazelight Studios",
+    games: [
+      {
+        name: "A Way Out",
+        method: {
+          type: "built-in",
+          friendPass: true,
+          crossPlay: "inter-generation",
+        },
+        connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+        notes: [
+          "On PC, the friend pass is only available from the EA app, but you can still play with someone who owns the game on Steam or other storefronts.",
+        ],
+      },
+      {
+        name: "It Takes Two",
+        method: {
+          type: "built-in",
+          friendPass: true,
+          crossPlay: "inter-generation",
+        },
+        connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+        notes: [
+          "On PC, the friend pass is only available from the EA app, but you can still play with someone who owns the game on Steam or other storefronts.",
+        ],
+      },
+      {
+        name: "Split Fiction",
+        method: {
+          type: "built-in",
+          friendPass: true,
+          crossPlay: "inter-generation",
+        },
+        connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
+        notes: [
+          "On PC, the friend pass is only available from the EA app, but you can still play with someone who owns the game on Steam or other storefronts.",
+        ],
+      },
     ],
   },
   {
@@ -87,7 +113,8 @@ export const games: Array<Game | Series> = [
       type: "built-in",
     },
     connectionModes: [
-      { type: "server" },
+      { type: "cloud-server", paid: true },
+      { type: "self-hosted-server" },
       {
         type: "peer-to-peer",
         mod: { name: "Essential.gg", href: "https://essential.gg/en" },
@@ -110,7 +137,7 @@ export const games: Array<Game | Series> = [
     method: {
       type: "built-in",
     },
-    connectionModes: [{ type: "server" }, { type: "peer-to-peer" }],
+    connectionModes: [{ type: "self-hosted-server" }, { type: "peer-to-peer" }],
     notes: [
       "[Exaroton](https://exaroton.com/:en/) offers Hypixel hosting with mod support that is billed on a per hour basis when the server is active/online.",
     ],
@@ -157,7 +184,7 @@ export const games: Array<Game | Series> = [
           name: "SourceCoop",
           href: "https://github.com/ampreeT/SourceCoop",
         },
-        connectionModes: [{ type: "server" }],
+        connectionModes: [{ type: "self-hosted-server" }],
       },
       {
         name: "Half Life 2",
@@ -167,7 +194,7 @@ export const games: Array<Game | Series> = [
           name: "Synergy",
           href: "https://store.steampowered.com/app/17520/Synergy/",
         },
-        connectionModes: [{ type: "server" }],
+        connectionModes: [{ type: "self-hosted-server" }],
       },
     ],
   },
@@ -219,7 +246,7 @@ export const games: Array<Game | Series> = [
         method: {
           type: "built-in",
         },
-        connectionModes: [{ type: "peer-to-peer" }],
+        connectionModes: [{ type: "cloud-server" }],
       },
       {
         name: "Call of Duty: Black Ops 6",
@@ -227,7 +254,7 @@ export const games: Array<Game | Series> = [
           type: "built-in",
           crossPlay: "cross-platform",
         },
-        connectionModes: [{ type: "peer-to-peer" }],
+        connectionModes: [{ type: "cloud-server" }],
       },
       {
         name: "Call of Duty: Black Ops 7",
@@ -235,7 +262,7 @@ export const games: Array<Game | Series> = [
           type: "built-in",
           crossPlay: "cross-platform",
         },
-        connectionModes: [{ type: "peer-to-peer" }],
+        connectionModes: [{ type: "cloud-server" }],
       },
     ],
   },

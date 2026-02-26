@@ -43,8 +43,17 @@ function GameRow(game: Game) {
   const connectionModes = useMemo(() => {
     return game.connectionModes
       .map((mode) => {
-        if (mode.type === "server") {
-          return <span>Server</span>;
+        if (mode.type === "official-hosted-server") {
+          return (
+            <span key={mode.type}>
+              Official-hosted Server
+              {mode.paid && <span> (Paid)</span>}
+            </span>
+          );
+        }
+
+        if (mode.type === "self-hosted-server") {
+          return <span>Self-hosted Server</span>;
         }
 
         const type =
@@ -144,6 +153,16 @@ function Row(item: Game | Series) {
 }
 
 export function Table() {
+  const sorted = useMemo(() => {
+    const sortedGames: Array<Game | Series> = games
+      .filter((item): item is Game => !("series" in item))
+      .toSorted((a, b) => a.name.localeCompare(b.name));
+    const sortedSeries = games
+      .filter((item): item is Series => "series" in item)
+      .toSorted((a, b) => a.series.localeCompare(b.series));
+    return sortedGames.concat(sortedSeries);
+  }, []);
+
   return (
     <table>
       <thead>
@@ -156,7 +175,7 @@ export function Table() {
         </tr>
       </thead>
       <tbody>
-        {games.map((item) => (
+        {sorted.map((item) => (
           <Row key={"series" in item ? item.series : item.name} {...item} />
         ))}
       </tbody>
