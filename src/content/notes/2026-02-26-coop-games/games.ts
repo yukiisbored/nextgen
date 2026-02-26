@@ -96,6 +96,55 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "self-hosted-server" }],
   },
   {
+    series: "Far Cry",
+    games: [
+      {
+        name: "Far Cry 4",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+        notes: [
+          "You need to finish the tutorial mission to unlock co-op mode.",
+          "Progress is only saved on the host, but there's no requirement of both players to be at the same point in the story or level.",
+        ],
+      },
+      {
+        name: "Far Cry 5",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+        notes: [
+          "You need to finish the tutorial mission on the first island to unlock co-op mode.",
+          "Progress is only saved on the host, but there's no requirement of both players to be at the same point in the story or level.",
+        ],
+      },
+      {
+        name: "Far Cry New Dawn",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+        notes: [
+          "You need to finish the tutorial mission to unlock co-op mode.",
+          "Progress is only saved on the host, but there's no requirement of both players to be at the same point in the story or level.",
+        ],
+      },
+      {
+        name: "Far Cry 6",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+        notes: [
+          "You need to finish the tutorial mission to unlock co-op mode.",
+          "Progress is only saved on the host, but there's no requirement of both players to be at the same point in the story or level.",
+        ],
+      },
+    ],
+  },
+  {
     series: "Dark Souls",
     games: [
       {
