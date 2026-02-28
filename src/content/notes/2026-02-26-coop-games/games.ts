@@ -239,6 +239,13 @@ export const games: Array<Game | Series> = [
     },
   },
   {
+    name: "Helldivers 2",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "cloud-server" }],
+  },
+  {
     series: "Biped",
     games: [
       {
