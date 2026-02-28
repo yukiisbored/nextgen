@@ -246,6 +246,13 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "cloud-server" }],
   },
   {
+    name: "Valheim",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "self-hosted-server" }],
+  },
+  {
     series: "Biped",
     games: [
       {
