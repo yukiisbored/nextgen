@@ -253,6 +253,13 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "self-hosted-server" }],
   },
   {
+    name: "7 Days to Die",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "self-hosted-server" }],
+  },
+  {
     series: "Biped",
     games: [
       {
