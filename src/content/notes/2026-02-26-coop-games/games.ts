@@ -222,6 +222,23 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "peer-to-peer" }],
   },
   {
+    name: "Project Zomboid",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [
+      { type: "self-hosted-server" },
+      { type: "peer-to-peer" },
+      { type: "split-screen" },
+    ],
+    notes: [
+      "If you're playing with a friend who bought it from a different store front (Steam, GOG), you need to start a server to play together.",
+    ],
+    features: {
+      modSupport: true,
+    },
+  },
+  {
     series: "Biped",
     games: [
       {
