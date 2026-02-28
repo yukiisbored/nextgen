@@ -222,6 +222,27 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "peer-to-peer" }],
   },
   {
+    series: "Biped",
+    games: [
+      {
+        name: "Biped",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "Biped 2",
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+    ],
+  },
+  {
     series: "PAYDAY",
     games: [
       {
