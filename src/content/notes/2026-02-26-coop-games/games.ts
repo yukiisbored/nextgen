@@ -260,6 +260,13 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "self-hosted-server" }],
   },
   {
+    name: "Tom Clancy's Ghost Recon Wildlands",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "peer-to-peer" }],
+  },
+  {
     series: "Biped",
     games: [
       {
