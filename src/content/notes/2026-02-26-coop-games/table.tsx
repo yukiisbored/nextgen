@@ -1,7 +1,13 @@
-import { useMemo, useState } from "react";
+import {
+  useMemo,
+  useState,
+  type DetailedHTMLProps,
+  type HTMLAttributes,
+} from "react";
 import { games, type Game, type Series } from "./games";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { marked } from "marked";
+import { cn } from "../../../utils/cn";
 
 function GameRow(game: Game) {
   const [showNotes, setShowNotes] = useState(false);
@@ -100,9 +106,31 @@ function GameRow(game: Game) {
       });
   }, [game.connectionModes]);
 
+  const toggleNotes = () => setShowNotes((v) => !v);
+
+  const makeButton: DetailedHTMLProps<
+    HTMLAttributes<HTMLTableRowElement>,
+    HTMLTableRowElement
+  > = game.notes
+    ? {
+        className:
+          "odd:bg-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500",
+        role: "button",
+        tabIndex: 0,
+        onClick: toggleNotes,
+        onKeyDown(e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggleNotes();
+          }
+        },
+        "aria-expanded": showNotes,
+      }
+    : {};
+
   return (
     <>
-      <tr className="odd:bg-neutral-100">
+      <tr className="odd:bg-neutral-100" {...makeButton}>
         <td>
           {game.name}
           {game.includes && (
@@ -114,20 +142,22 @@ function GameRow(game: Game) {
         <td>{method}</td>
         <td>{connectionModes}</td>
         <td>{specialFeatures.join(", ")}</td>
-        <td className="block m-auto">
-          {game.notes && (
-            <button
-              type="button"
-              className="rounded-md h-1 px-2.5 text-center text-sm transition-all disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-              onClick={() => setShowNotes((v) => !v)}
-            >
-              {showNotes ? <ChevronUp /> : <ChevronDown />}
-            </button>
-          )}
-        </td>
+        {game.notes ? (
+          <td className="flex items-center justify-center">
+            <ChevronDown
+              className={cn(
+                "w-4 h-4 transition-transform duration-300 ease-in-out",
+                showNotes && "rotate-180",
+              )}
+              aria-hidden={true}
+            />
+          </td>
+        ) : (
+          <td />
+        )}
       </tr>
       {showNotes && (
-        <tr>
+        <tr className="odd:bg-neutral-100">
           <td colSpan={5}>
             {game.notes?.map((v) => (
               <p
