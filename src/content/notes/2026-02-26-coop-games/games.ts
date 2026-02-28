@@ -267,6 +267,13 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "peer-to-peer" }],
   },
   {
+    name: "SYNTHETIK: Legion Rising",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "peer-to-peer" }],
+  },
+  {
     series: "Biped",
     games: [
       {
