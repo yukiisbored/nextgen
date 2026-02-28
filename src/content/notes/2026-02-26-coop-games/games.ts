@@ -274,6 +274,13 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "peer-to-peer" }],
   },
   {
+    name: "Enter the Gungeon",
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "split-screen" }],
+  },
+  {
     series: "Biped",
     games: [
       {
