@@ -32,7 +32,6 @@ type Features = {
 };
 
 export type Game = {
-  name: string;
   includes?: Array<string>;
   method: Method;
   connectionModes: Array<ConnectionMode>;
@@ -41,13 +40,11 @@ export type Game = {
 };
 
 export type Series = {
-  series: string;
-  games: Array<Game>;
+  games: Record<string, Game>;
 };
 
-export const games: Array<Game | Series> = [
-  {
-    name: "Factorio",
+export const games: Record<string, Game | Series> = {
+  Factorio: {
     method: {
       type: "built-in",
     },
@@ -56,8 +53,7 @@ export const games: Array<Game | Series> = [
       modSupport: true,
     },
   },
-  {
-    name: "Don't Starve Together",
+  "Don't Starve Together": {
     method: {
       type: "built-in",
     },
@@ -70,8 +66,7 @@ export const games: Array<Game | Series> = [
       modSupport: true,
     },
   },
-  {
-    name: "Baldur's Gate 3",
+  "Baldur's Gate 3": {
     method: {
       type: "built-in",
       crossPlay: "cross-platform",
@@ -79,8 +74,7 @@ export const games: Array<Game | Series> = [
     },
     connectionModes: [{ type: "peer-to-peer" }],
   },
-  {
-    name: "The Binding of Isaac: Repentance",
+  "The Binding of Isaac: Repentance": {
     method: {
       type: "built-in",
     },
@@ -89,8 +83,7 @@ export const games: Array<Game | Series> = [
       modSupport: true,
     },
   },
-  {
-    name: "Stardew Valley",
+  "Stardew Valley": {
     method: {
       type: "built-in",
       crossPlay: "cross-generation",
@@ -100,8 +93,7 @@ export const games: Array<Game | Series> = [
       modSupport: true,
     },
   },
-  {
-    name: "Portal 2",
+  "Portal 2": {
     method: {
       type: "built-in",
     },
@@ -110,15 +102,13 @@ export const games: Array<Game | Series> = [
       modSupport: true,
     },
   },
-  {
-    name: "Last Epoch",
+  "Last Epoch": {
     method: {
       type: "built-in",
     },
     connectionModes: [{ type: "peer-to-peer" }],
   },
-  {
-    name: "DOOM (1993)",
+  "DOOM (1993)": {
     includes: ["DOOM II"],
     method: {
       type: "built-in",
@@ -134,15 +124,13 @@ export const games: Array<Game | Series> = [
       "You can use [Zandronum](https://zandronum.com/) to play with more than 4 players and get better mod support.",
     ],
   },
-  {
-    name: "NZ: Portable (COD Zombies Demake)",
+  "NZ: Portable (COD Zombies Demake)": {
     method: {
       type: "built-in",
     },
     connectionModes: [{ type: "self-hosted-server" }],
   },
-  {
-    name: "Terraria",
+  Terraria: {
     method: { type: "built-in", crossPlay: "cross-generation" },
     connectionModes: [
       { type: "peer-to-peer" },
@@ -152,8 +140,7 @@ export const games: Array<Game | Series> = [
       modSupport: true,
     },
   },
-  {
-    name: "Vintage Story",
+  "Vintage Story": {
     method: {
       type: "built-in",
     },
@@ -162,8 +149,7 @@ export const games: Array<Game | Series> = [
       modSupport: true,
     },
   },
-  {
-    name: "Satisfactory",
+  Satisfactory: {
     method: {
       type: "built-in",
       crossPlay: ["Xbox", "PlayStation"],
@@ -173,8 +159,7 @@ export const games: Array<Game | Series> = [
       modSupport: true,
     },
   },
-  {
-    name: "Barony",
+  Barony: {
     method: {
       type: "built-in",
     },
@@ -183,8 +168,7 @@ export const games: Array<Game | Series> = [
       modSupport: true,
     },
   },
-  {
-    name: "Hytale",
+  Hytale: {
     method: {
       type: "built-in",
     },
@@ -196,8 +180,7 @@ export const games: Array<Game | Series> = [
       "[Exaroton](https://exaroton.com/:en/) offers Hypixel hosting with mod support that is billed on a per hour basis when the server is active/online.",
     ],
   },
-  {
-    name: "Halo: The Master Chief Collection",
+  "Halo: The Master Chief Collection": {
     includes: [
       "Halo: Combat Evolved",
       "Halo 2",
@@ -212,8 +195,7 @@ export const games: Array<Game | Series> = [
     },
     connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
   },
-  {
-    name: "Super Mario 64",
+  "Super Mario 64": {
     method: {
       type: "mod",
       name: "sm64coopdx",
@@ -221,8 +203,7 @@ export const games: Array<Game | Series> = [
     },
     connectionModes: [{ type: "peer-to-peer" }],
   },
-  {
-    name: "Project Zomboid",
+  "Project Zomboid": {
     method: {
       type: "built-in",
     },
@@ -238,93 +219,79 @@ export const games: Array<Game | Series> = [
       modSupport: true,
     },
   },
-  {
-    name: "Helldivers 2",
+  "Helldivers 2": {
     method: {
       type: "built-in",
     },
     connectionModes: [{ type: "cloud-server" }],
   },
-  {
-    name: "Valheim",
+  Valheim: {
     method: {
       type: "built-in",
     },
     connectionModes: [{ type: "self-hosted-server" }],
   },
-  {
-    name: "7 Days to Die",
+  "7 Days to Die": {
     method: {
       type: "built-in",
     },
     connectionModes: [{ type: "self-hosted-server" }],
   },
-  {
-    name: "Tom Clancy's Ghost Recon Wildlands",
+  "Tom Clancy's Ghost Recon Wildlands": {
     method: {
       type: "built-in",
     },
     connectionModes: [{ type: "peer-to-peer" }],
   },
-  {
-    name: "Enter the Gungeon",
+  "Enter the Gungeon": {
     method: {
       type: "built-in",
     },
     connectionModes: [{ type: "split-screen" }],
   },
-  {
-    series: "Biped",
-    games: [
-      {
-        name: "Biped",
+  Biped: {
+    games: {
+      Biped: {
         method: {
           type: "built-in",
           crossPlay: "cross-platform",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Biped 2",
+      "Biped 2": {
         method: {
           type: "built-in",
           crossPlay: "cross-platform",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-    ],
+    },
   },
-  {
-    series: "PAYDAY",
-    games: [
-      {
-        name: "PAYDAY: The Heist",
+  PAYDAY: {
+    games: {
+      "PAYDAY: The Heist": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "PAYDAY 2",
+      "PAYDAY 2": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-    ],
+    },
   },
-  {
-    series: "Left 4 Dead",
-    games: [
-      {
-        name: "Left 4 Dead",
+  "Left 4 Dead": {
+    games: {
+      "Left 4 Dead": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Left 4 Dead 2",
+      "Left 4 Dead 2": {
         method: {
           type: "built-in",
         },
@@ -333,85 +300,73 @@ export const games: Array<Game | Series> = [
           modSupport: true,
         },
       },
-    ],
+    },
   },
-  {
-    series: "Warhammer 40K",
-    games: [
-      {
-        name: "Warhammer 40K: Rogue Trader",
+  "Warhammer 40K": {
+    games: {
+      "Warhammer 40K: Rogue Trader": {
         method: {
           type: "built-in",
           crossPlay: "cross-platform",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Warhammer 40K: Space Hulk Deathwing",
+      "Warhammer 40K: Space Hulk Deathwing": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Warhammer 40K: Dawn of War",
-        method: {
-          type: "built-in",
-          crossPlay: "cross-platform",
-        },
-        connectionModes: [{ type: "peer-to-peer" }],
-      },
-      {
-        name: "Warhammer 40K: Battlefleet Gothic Armada II",
+      "Warhammer 40K: Dawn of War": {
         method: {
           type: "built-in",
           crossPlay: "cross-platform",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Warhammer 40K: Space Marine 2",
+      "Warhammer 40K: Battlefleet Gothic Armada II": {
         method: {
           type: "built-in",
           crossPlay: "cross-platform",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-    ],
+      "Warhammer 40K: Space Marine 2": {
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+    },
   },
-  {
-    series: "Monster Hunter",
-    games: [
-      {
-        name: "Monster Hunter Rise",
+  "Monster Hunter": {
+    games: {
+      "Monster Hunter Rise": {
         method: {
           type: "built-in",
           crossPlay: "cross-generation",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Monster Hunter World",
+      "Monster Hunter World": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Monster Hunter Wilds",
+      "Monster Hunter Wilds": {
         method: {
           type: "built-in",
           crossPlay: "cross-platform",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-    ],
+    },
   },
-  {
-    series: "Far Cry",
-    games: [
-      {
-        name: "Far Cry 4",
+  "Far Cry": {
+    games: {
+      "Far Cry 4": {
         method: {
           type: "built-in",
           crossPlay: "cross-generation",
@@ -422,8 +377,7 @@ export const games: Array<Game | Series> = [
           "Progress is only saved on the host, but there's no requirement of both players to be at the same point in the story or level.",
         ],
       },
-      {
-        name: "Far Cry 5",
+      "Far Cry 5": {
         method: {
           type: "built-in",
           crossPlay: "cross-generation",
@@ -434,8 +388,7 @@ export const games: Array<Game | Series> = [
           "Progress is only saved on the host, but there's no requirement of both players to be at the same point in the story or level.",
         ],
       },
-      {
-        name: "Far Cry New Dawn",
+      "Far Cry New Dawn": {
         method: {
           type: "built-in",
           crossPlay: "cross-generation",
@@ -446,8 +399,7 @@ export const games: Array<Game | Series> = [
           "Progress is only saved on the host, but there's no requirement of both players to be at the same point in the story or level.",
         ],
       },
-      {
-        name: "Far Cry 6",
+      "Far Cry 6": {
         method: {
           type: "built-in",
           crossPlay: "cross-generation",
@@ -459,32 +411,27 @@ export const games: Array<Game | Series> = [
           "Progress is only saved on the host, but there's no requirement of both players to be at the same point in the story or level.",
         ],
       },
-    ],
+    },
   },
-  {
-    series: "SYNTHETIK",
-    games: [
-      {
-        name: "SYNTHETIK: Legion Rising",
+  SYNTHETIK: {
+    games: {
+      "SYNTHETIK: Legion Rising": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "SYNTHETIK 2",
+      "SYNTHETIK 2": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-    ],
+    },
   },
-  {
-    series: "Dark Souls",
-    games: [
-      {
-        name: "Dark Souls: Remastered",
+  "Dark Souls": {
+    games: {
+      "Dark Souls: Remastered": {
         method: {
           type: "mod",
           name: "Seamless Co-op",
@@ -492,15 +439,13 @@ export const games: Array<Game | Series> = [
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Dark Souls 2",
+      "Dark Souls 2": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Dark Souls 3",
+      "Dark Souls 3": {
         method: {
           type: "mod",
           name: "Seamless Co-op",
@@ -508,13 +453,11 @@ export const games: Array<Game | Series> = [
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-    ],
+    },
   },
-  {
-    series: "Hazelight Studios",
-    games: [
-      {
-        name: "A Way Out",
+  "Hazelight Studios": {
+    games: {
+      "A Way Out": {
         method: {
           type: "built-in",
           friendPass: true,
@@ -525,8 +468,7 @@ export const games: Array<Game | Series> = [
           "On PC, the friend pass is only available from the EA app, but you can still play with someone who owns the game on Steam or other storefronts.",
         ],
       },
-      {
-        name: "It Takes Two",
+      "It Takes Two": {
         method: {
           type: "built-in",
           friendPass: true,
@@ -537,8 +479,7 @@ export const games: Array<Game | Series> = [
           "On PC, the friend pass is only available from the EA app, but you can still play with someone who owns the game on Steam or other storefronts.",
         ],
       },
-      {
-        name: "Split Fiction",
+      "Split Fiction": {
         method: {
           type: "built-in",
           friendPass: true,
@@ -549,13 +490,11 @@ export const games: Array<Game | Series> = [
           "On PC, the friend pass is only available from the EA app, but you can still play with someone who owns the game on Steam or other storefronts.",
         ],
       },
-    ],
+    },
   },
-  {
-    series: "Minecraft",
-    games: [
-      {
-        name: "Minecraft: Bedrock Edition",
+  Minecraft: {
+    games: {
+      "Minecraft: Bedrock Edition": {
         method: {
           type: "built-in",
           crossPlay: "cross-platform",
@@ -570,8 +509,7 @@ export const games: Array<Game | Series> = [
           modSupport: true,
         },
       },
-      {
-        name: "Minecraft: Java Edition",
+      "Minecraft: Java Edition": {
         method: {
           type: "built-in",
         },
@@ -598,50 +536,43 @@ export const games: Array<Game | Series> = [
           "[Exaroton](https://exaroton.com/:en/) offers Minecraft hosting with mod support that is billed on a per hour basis when the server is active/online.",
         ],
       },
-      {
-        name: "Minecraft Dungeons",
+      "Minecraft Dungeons": {
         method: {
           type: "built-in",
           crossPlay: "cross-platform",
         },
         connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
       },
-      {
-        name: "Minecraft Legends",
+      "Minecraft Legends": {
         method: {
           type: "built-in",
           crossPlay: "cross-platform",
         },
         connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
       },
-    ],
+    },
   },
-  {
-    series: "PowerWash Simulator",
-    games: [
-      {
-        name: "PowerWash Simulator",
+  "PowerWash Simulator": {
+    games: {
+      "PowerWash Simulator": {
         method: {
           type: "built-in",
           crossPlay: ["PC", "Xbox"],
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "PowerWash Simulator 2",
+      "PowerWash Simulator 2": {
         method: {
           type: "built-in",
           crossPlay: ["PC", "Xbox"],
         },
         connectionModes: [{ type: "peer-to-peer" }, { type: "split-screen" }],
       },
-    ],
+    },
   },
-  {
-    series: "Half Life",
-    games: [
-      {
-        name: "Half-Life",
+  "Half Life": {
+    games: {
+      "Half-Life": {
         includes: ["Half-Life: Blue Shift", "Half-Life: Opposing Force"],
         method: {
           type: "mod",
@@ -654,8 +585,7 @@ export const games: Array<Game | Series> = [
         },
         notes: ["You don't need to own Half-Life to play Sven Co-op."],
       },
-      {
-        name: "Black Mesa",
+      "Black Mesa": {
         method: {
           type: "mod",
           name: "SourceCoop",
@@ -663,8 +593,7 @@ export const games: Array<Game | Series> = [
         },
         connectionModes: [{ type: "self-hosted-server" }],
       },
-      {
-        name: "Half Life 2",
+      "Half Life 2": {
         includes: ["Half-Life 2: Episode One", "Half-Life 2: Episode Two"],
         method: {
           type: "mod",
@@ -673,35 +602,29 @@ export const games: Array<Game | Series> = [
         },
         connectionModes: [{ type: "self-hosted-server" }],
       },
-    ],
+    },
   },
-
-  {
-    series: "Call of Duty: Zombies (Treyarch)",
-    games: [
-      {
-        name: "Call of Duty: World at War",
+  "Call of Duty: Zombies (Treyarch)": {
+    games: {
+      "Call of Duty: World at War": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Call of Duty: Black Ops",
+      "Call of Duty: Black Ops": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Call of Duty: Black Ops 2",
+      "Call of Duty: Black Ops 2": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Call of Duty: Black Ops 3",
+      "Call of Duty: Black Ops 3": {
         method: {
           type: "built-in",
         },
@@ -714,43 +637,37 @@ export const games: Array<Game | Series> = [
           "Though, this isn't necessary since you're playing with a friend, unless they're a massive dick.",
         ],
       },
-      {
-        name: "Call of Duty: Black Ops 4",
+      "Call of Duty: Black Ops 4": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Call of Duty: Black Ops Cold War",
+      "Call of Duty: Black Ops Cold War": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "cloud-server" }],
       },
-      {
-        name: "Call of Duty: Black Ops 6",
-        method: {
-          type: "built-in",
-          crossPlay: "cross-platform",
-        },
-        connectionModes: [{ type: "cloud-server" }],
-      },
-      {
-        name: "Call of Duty: Black Ops 7",
+      "Call of Duty: Black Ops 6": {
         method: {
           type: "built-in",
           crossPlay: "cross-platform",
         },
         connectionModes: [{ type: "cloud-server" }],
       },
-    ],
+      "Call of Duty: Black Ops 7": {
+        method: {
+          type: "built-in",
+          crossPlay: "cross-platform",
+        },
+        connectionModes: [{ type: "cloud-server" }],
+      },
+    },
   },
-  {
-    series: "Diablo",
-    games: [
-      {
-        name: "Diablo",
+  Diablo: {
+    games: {
+      Diablo: {
         method: {
           type: "mod",
           name: "DevilutionX",
@@ -758,23 +675,20 @@ export const games: Array<Game | Series> = [
         },
         connectionModes: [{ type: "self-hosted-server" }],
       },
-      {
-        name: "Diablo II: Resurrected",
+      "Diablo II: Resurrected": {
         method: {
           type: "built-in",
           crossProgression: true,
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Diablo III",
+      "Diablo III": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Diablo IV",
+      "Diablo IV": {
         method: {
           type: "built-in",
           crossPlay: "cross-platform",
@@ -782,20 +696,17 @@ export const games: Array<Game | Series> = [
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-    ],
+    },
   },
-  {
-    series: "Borderlands",
-    games: [
-      {
-        name: "Borderlands 1",
+  Borderlands: {
+    games: {
+      "Borderlands 1": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-      {
-        name: "Borderlands 2",
+      "Borderlands 2": {
         method: {
           type: "built-in",
         },
@@ -805,8 +716,7 @@ export const games: Array<Game | Series> = [
           "If they're on Linux, they can enable Proton for the game to get the latest version.",
         ],
       },
-      {
-        name: "Borderlands 3",
+      "Borderlands 3": {
         method: {
           type: "built-in",
         },
@@ -815,13 +725,12 @@ export const games: Array<Game | Series> = [
           "If you're on Windows and playing someone on Linux, they need to enable Proton to get the latest version.",
         ],
       },
-      {
-        name: "Borderlands: The Pre-Sequel",
+      "Borderlands: The Pre-Sequel": {
         method: {
           type: "built-in",
         },
         connectionModes: [{ type: "peer-to-peer" }],
       },
-    ],
+    },
   },
-];
+};

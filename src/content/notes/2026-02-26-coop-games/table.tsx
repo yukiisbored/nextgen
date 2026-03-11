@@ -1,15 +1,15 @@
-import {
-  useMemo,
-  useState,
-  type DetailedHTMLProps,
-  type HTMLAttributes,
-} from "react";
-import { games, type Game, type Series } from "./games";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { marked } from "marked";
+import {
+  type DetailedHTMLProps,
+  type HTMLAttributes,
+  useMemo,
+  useState,
+} from "react";
 import { cn } from "../../../utils/cn";
+import { type Game, type Series, games } from "./games";
 
-function GameRow(game: Game) {
+function GameRow({ name, game }: { name: string; game: Game }) {
   const [showNotes, setShowNotes] = useState(false);
   const specialFeatures = useMemo<Array<string>>(() => {
     if (game.method.type !== "built-in") {
@@ -132,7 +132,7 @@ function GameRow(game: Game) {
     <>
       <tr className="odd:bg-neutral-100" {...makeButton}>
         <td>
-          {game.name}
+          {name}
           {game.includes && (
             <sup title={game.includes.join(", ")} className="has-footnote">
               +
@@ -175,51 +175,54 @@ function GameRow(game: Game) {
   );
 }
 
-function SeriesRow({ series, games }: Series) {
+function SeriesRow({ name, series }: { name: string; series: Series }) {
   return (
     <>
       <tr className="bg-neutral-200">
         <td colSpan={5} className="font-bold">
-          {series}
+          {name}
         </td>
       </tr>
-      {games.map((game) => (
-        <GameRow key={game.name} {...game} />
+      {Object.entries(series.games).map(([gameName, game]) => (
+        <GameRow key={gameName} name={gameName} game={game} />
       ))}
     </>
   );
 }
 
-function Row(item: Game | Series) {
-  if ("series" in item) {
-    return SeriesRow(item);
+function Row({ name, item }: { name: string; item: Game | Series }) {
+  if ("games" in item) {
+    return SeriesRow({ name, series: item });
   }
 
-  return GameRow(item);
+  return GameRow({ name, game: item });
 }
 
 export function Table() {
+  const entries = useMemo(() => Object.entries(games), []);
   const allGames = useMemo(() => {
-    const seriesGames = games
-      .filter((item): item is Series => "series" in item)
-      .flatMap((series) => series.games);
-    const standaloneGames = games.filter(
-      (item): item is Game => !("series" in item),
-    );
+    const seriesGames = entries
+      .filter((entry): entry is [string, Series] => "games" in entry[1])
+      .flatMap(([, series]) => Object.keys(series.games));
+    const standaloneGames = entries
+      .filter((entry): entry is [string, Game] => !("games" in entry[1]))
+      .map(([name]) => name);
     return standaloneGames.concat(seriesGames);
-  }, []);
+  }, [entries]);
   const allSeries = useMemo(() => {
-    return games.filter((item): item is Series => "series" in item);
-  }, []);
+    return entries.filter(
+      (entry): entry is [string, Series] => "games" in entry[1],
+    );
+  }, [entries]);
   const sorted = useMemo(() => {
-    const sortedGames: Array<Game | Series> = games
-      .filter((item): item is Game => !("series" in item))
-      .toSorted((a, b) => a.name.localeCompare(b.name));
-    const sortedSeries = games
-      .filter((item): item is Series => "series" in item)
-      .toSorted((a, b) => a.series.localeCompare(b.series));
-    return sortedGames.concat(sortedSeries);
-  }, []);
+    const sortedGames = entries
+      .filter((entry): entry is [string, Game] => !("games" in entry[1]))
+      .toSorted((a, b) => a[0].localeCompare(b[0]));
+    const sortedSeries = entries
+      .filter((entry): entry is [string, Series] => "games" in entry[1])
+      .toSorted((a, b) => a[0].localeCompare(b[0]));
+    return [...sortedGames, ...sortedSeries];
+  }, [entries]);
 
   return (
     <>
@@ -234,8 +237,8 @@ export function Table() {
           </tr>
         </thead>
         <tbody>
-          {sorted.map((item) => (
-            <Row key={"series" in item ? item.series : item.name} {...item} />
+          {sorted.map(([name, item]) => (
+            <Row key={name} name={name} item={item} />
           ))}
         </tbody>
       </table>
