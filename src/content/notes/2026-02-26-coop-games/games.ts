@@ -267,13 +267,6 @@ export const games: Array<Game | Series> = [
     connectionModes: [{ type: "peer-to-peer" }],
   },
   {
-    name: "SYNTHETIK: Legion Rising",
-    method: {
-      type: "built-in",
-    },
-    connectionModes: [{ type: "peer-to-peer" }],
-  },
-  {
     name: "Enter the Gungeon",
     method: {
       type: "built-in",
@@ -465,6 +458,25 @@ export const games: Array<Game | Series> = [
           "You need to finish the tutorial mission to unlock co-op mode.",
           "Progress is only saved on the host, but there's no requirement of both players to be at the same point in the story or level.",
         ],
+      },
+    ],
+  },
+  {
+    series: "SYNTHETIK",
+    games: [
+      {
+        name: "SYNTHETIK: Legion Rising",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
+      },
+      {
+        name: "SYNTHETIK 2",
+        method: {
+          type: "built-in",
+        },
+        connectionModes: [{ type: "peer-to-peer" }],
       },
     ],
   },
