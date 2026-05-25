@@ -1,13 +1,18 @@
 import { loadRenderers } from "astro:container";
 import { getCollection, render } from "astro:content";
 import { getContainerRenderer as getMDXRenderer } from "@astrojs/mdx";
+import { getContainerRenderer as getReactRenderer } from "@astrojs/react";
+import reactServerRenderer from "@astrojs/react/server.js";
 import rss, { type RSSFeedItem } from "@astrojs/rss";
 import type { APIContext } from "astro";
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import invariant from "tiny-invariant";
 
 export async function GET(context: APIContext) {
-  const renderers = await loadRenderers([getMDXRenderer()]);
+  const renderers = [
+    ...(await loadRenderers([getMDXRenderer()])),
+    { ...getReactRenderer(), ssr: reactServerRenderer },
+  ];
   const container = await AstroContainer.create({ renderers });
   const posts = (await getCollection("notes")).filter(
     (post) => !post.data.draft && !post.data.excludeFeed,
