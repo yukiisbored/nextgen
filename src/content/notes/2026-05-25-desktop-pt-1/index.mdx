@@ -1,0 +1,198 @@
+---
+title: "Adventures in Desktop: Patchouli X (Part 1)"
+date: "2026-05-25"
+slug: "desktop-pt-1"
+draft: false
+---
+
+I've been building desktop apps and I wanted to share my experience.
+
+Lets start with Patchouli X.
+
+Patchouli X was a desktop version of Patchouli.
+
+# What was Patchouli?
+
+Patchouli was my internet scrapbook project as I find myself collecting links
+from the Small Web a lot.
+
+import patchouliWebDemo from "./patchouli_web_demo.mp4"
+
+<video controls="controls">
+  <source src={patchouliWebDemo} type="video/webm" />
+  <p>Your browser does not support the video tag.</p>
+</video>
+
+I noticed this need from realizing that my web history is a treasure trove of
+information, especially for niche topics.
+
+It was originally a Laravel app which made things easier for me since it's what
+I have been using at work. Though at the time, we just started transitioning
+from Django to Laravel.
+
+The result was great. I just use Laravel Scout with [Typesense] for the core
+search engine. I was using OpenAI's embedding models to improve the search
+result. And I got my dream tool.
+
+[Typesense]: https://typesense.org/
+
+Of course, I wanted to share it with people because I notice a lot of my friends
+have the same issue with similar solutions (e.g. sending links in a Discord).
+
+Plus, at the time, a lot of the bookmarking apps emphasized too much on
+manual organization. I was using Raindrop.io at the time and despite my best
+attempt, everything just ended up in one big folder.
+
+The goal at the time was to make it a SaaS. I've been building apps for startups
+at work, why not make one myself?
+
+Ultimately, I decided against it because I just loathe the idea of running a
+business. I wanna make solutions that people can use and the buck ends there for
+me.
+
+# Move toward Patchouli X
+
+After a lot of soul searching, I decided to build in my favorite programming
+language, TypeScript, using Electron for the frontend and tRPC backend.
+
+The reason for this was simple, I've always been an experienced backend
+developer while my frontend skills are okay by comparison.
+
+So, I like to keep the hard bits to be somewhat familiar at least.
+
+I was using [electron-trpc] to bridge the gap between Electron and tRPC and the
+search is done by [orama].
+
+[electron-trpc]: https://github.com/jsonnull/electron-trpc
+[orama]: https://github.com/oramasearch/orama
+
+The search result was OK, but noticably bad in comparison to Typesense.
+
+The indexing was really slow and the memory usage was horrible.
+
+At first, the whole UI slows down when search/heavy processing is done, so I
+decided to fork electron-trpc and create a version which talks over
+stdin/stdout so I can have the backend run as a sidecar.
+
+https://github.com/yukiisbored/patchouli-x/commit/89fb6293c1afd9fd4c48bd343967d621e1a22819
+
+Unfortunately, I encountered a bug in Bun due to how it buffers pipes.
+
+https://github.com/oven-sh/bun/issues/13374
+
+This was fixed after I stopped development of Patchouli X
+
+https://github.com/oven-sh/bun/pull/20152
+
+I moved to Tauri to reduce the app's installed size and memory usage.
+
+https://github.com/yukiisbored/patchouli-x/commit/89f80ee9ae8b94bdf1cf001ba39087dfa1b63415
+
+Ultimately, this doesn't fix the slow indexing and memory usage. I decided to
+move to SQLite with FTS5.
+
+https://github.com/yukiisbored/patchouli-x/commits/yuki_is_bored/rearch-again
+
+Unfortunately as a consequence, the search results became much worse.
+
+At the end, I felt like I was out of my depth as I don't actually know how to
+make a search engine nor do I have the time to learn.
+
+I looked at the available examples of FTS5 in use, mainly from
+[Signal for Android's code].
+
+[Signal for Android's code]: https://github.com/signalapp/Signal-Android
+
+The killing blow for me was when Obsidian announced the Web Clipper extension.
+
+https://obsidian.md/clipper
+
+At that point, I saw no reason for me to continue.
+
+# Side quest: WebExtension
+
+WebExtension is a pain in the rear to build. It lacks a mature ecosystem in
+comparison to the rest of JavaScript.
+
+The only promising path was [CRXJS] which at the time, looked like it was about to be abandoned.
+
+[CRXJS]: https://crxjs.dev/
+
+https://github.com/crxjs/chrome-extension-tools/commit/2b35ffc7851338c38ec8b3362d7d92256f4a8080
+
+I did make a good proof of concept of what I was aiming for with Patchouli.
+
+import patchouliExtensionDemo from "./patchouli_extension_demo.mp4";
+
+<video controls="controls">
+  <source src={patchouliExtensionDemo} type="video/webm" />
+  <p>Your browser does not support the video tag.</p>
+</video>
+
+FWIW, This uses the SaaS version of Patchouli.
+
+I know that WebExtension is going to be an important feature as even back then
+as most of the web was slowly gating itself with CloudFlare which prevents
+server-side scraping.
+
+So, I needed a way to archive web pages as the user visits them so they archive
+what they actually read.
+
+Today, very website is guarded by either CloudFlare or Anubis as the advent of
+AI scrapers made this the norm.
+
+On a positive note, I'm happy to see that CRXJS is seemingly like it's
+maintained again. I do hope that the WebExtension ecosystem gets better tooling,
+but I imagine the momentum is just isn't there.
+
+# Conclusion
+
+Patchouli X was my first honest foray into the development of desktop apps.
+
+As we now have the benefit of hindsight, I can give you my recommendation for
+the web-centric route.
+
+[Tauri] is great. You're just wrapping your frontend into an exe and it gets the
+job done quite well.
+
+[Tauri]: https://tauri.app/
+
+Electron by comparison is thick in bad engineering decisions and decades of
+ignorance while Tauri has rich documentation and first-party ecosystem.
+
+If you want a taste of it, figure out how to bundle, package, and distribute an
+Electron app with a sidecar for Windows, macOS, and Linux.
+
+Tauri itself provides a good way to interact with the native world via Rust and
+it has a rich first-party plugin system which helps steers developers in the
+right ecosystem.
+
+Not to mention, with v2, it might dethrone [Capacitor] for mobile apps.
+
+[Capacitor]: https://capacitorjs.com/
+
+If your goal is to create a good desktop app while using your existing skills
+from building web apps at work, I'd reach for Tauri.
+
+As mentioned before, with the plugins ecosystem, I imagine you can get quite far
+without writing native code.
+
+If you end up needing to, you're not beholden to only Rust and you'd have the
+option of writing your own sidecar. This is especially useful if you want a
+strict separation between the "backend" and the "frontend" in your desktop apps.
+
+If you want a TypeScript/JavaScript sidecar, you can package your backend with
+Bun as a single file executable.
+
+https://bun.com/docs/bundler/executables
+
+Node.js has [something similar], but it's still in active development.
+
+[something similar]: https://nodejs.org/api/single-executable-applications.html
+
+Considering how complete Bun is for everything ([bun:sqlite], [bun:ffi]), I'd
+take Bun over Node.js anyday and you won't know the pain of linking Node.js
+native modules on single file executables.
+
+[bun:sqlite]: https://bun.com/docs/runtime/sqlite
+[bun:ffi]: https://bun.com/docs/runtime/ffi
