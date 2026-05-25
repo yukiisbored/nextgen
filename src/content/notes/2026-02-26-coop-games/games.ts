@@ -44,6 +44,12 @@ export type Series = {
 };
 
 export const games: Record<string, Game | Series> = {
+  "Forza Horizon 6": {
+    method: {
+      type: "built-in"
+    },
+    connectionModes: [{ type: "peer-to-peer" }],
+  },
   Factorio: {
     method: {
       type: "built-in",
