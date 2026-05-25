@@ -7,10 +7,12 @@ import tailwind from "@astrojs/tailwind";
 
 import react from "@astrojs/react";
 
+import linkCard from "astro-link-card";
+
 // https://astro.build/config
 export default defineConfig({
     site: "https://yukiisbo.red",
-    integrations: [tailwind(), mdx(), react()],
+    integrations: [tailwind(), mdx(), react(), linkCard()],
     markdown: {
         shikiConfig: {
             // @ts-ignore
