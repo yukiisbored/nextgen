@@ -50,7 +50,7 @@ const sortedYears = Object.keys(groupedPosts).sort(
                   <div class="flex flex-col md:grid md:grid-cols-[9ch_1fr] md:gap-x-2">
                     <div class="hidden md:block md:order-1">{post.data.date}</div>
                     <div class="md:order-2">
-                      <a href={`/notes/${post.slug}`} class="text-2xl md:text-base font-medium">
+                      <a href={`/notes/${post.id}`} class="text-2xl md:text-base font-medium">
                         {post.data.title}
                       </a>
                       <div class="text-sm text-gray-500 mt-2 mb-3 md:mt-1 md:mb-1 md:hidden">{post.data.date}</div>

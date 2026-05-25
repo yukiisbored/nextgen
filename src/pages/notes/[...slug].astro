@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Admonition from "../../components/Admonition.astro";
 import { description } from "../../utils/seo";
@@ -7,13 +7,13 @@ import { description } from "../../utils/seo";
 export async function getStaticPaths() {
 	const posts = await getCollection("notes");
 	return posts.map((post) => ({
-		params: { slug: post.slug },
+		params: { slug: post.id },
 		props: { post },
 	}));
 }
 
 const { post } = Astro.props;
-const { Content, headings } = await post.render();
+const { Content, headings } = await render(post);
 
 const tableOfContents =
 	headings.length > 0
