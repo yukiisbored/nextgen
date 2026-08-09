@@ -1,6 +1,7 @@
 {
   "version": "5",
   "specifiers": {
+    "npm:@astrojs/markdown-remark@^7.2.2": "7.2.2",
     "npm:@astrojs/mdx@7.0.5": "7.0.5_astro@7.2.0__@astrojs+markdown-remark@7.2.2__@emnapi+core@1.11.1__@emnapi+runtime@1.11.1_@emnapi+core@1.11.1_@emnapi+runtime@1.11.1",
     "npm:@astrojs/react@6.0.2": "6.0.2_@types+react@19.2.18_@types+react-dom@19.2.4__@types+react@19.2.18_react@19.2.8_react-dom@19.2.8__react@19.2.8",
     "npm:@astrojs/rss@4.0.19": "4.0.19",
@@ -10,13 +11,13 @@
     "npm:@types/react-dom@^19.2.3": "19.2.4_@types+react@19.2.18",
     "npm:@types/react@^19.2.14": "19.2.18",
     "npm:@types/remove-markdown@~0.3.4": "0.3.4",
-    "npm:astro-link-card@^4.0.6": "4.0.7",
     "npm:astro@7.2.0": "7.2.0_@astrojs+markdown-remark@7.2.2_@emnapi+core@1.11.1_@emnapi+runtime@1.11.1",
     "npm:clsx@^2.1.1": "2.1.1",
     "npm:lucide-react@0.575": "0.575.0_react@19.2.8",
     "npm:marked@^17.0.3": "17.0.6",
     "npm:react-dom@^19.2.4": "19.2.8_react@19.2.8",
     "npm:react@^19.2.4": "19.2.8",
+    "npm:rehype-og-card@^3.1.13": "3.1.13",
     "npm:remove-markdown@~0.6.3": "0.6.4",
     "npm:tailwind-merge@^3.5.0": "3.6.0",
     "npm:tailwindcss@^3.4.19": "3.4.19",
@@ -1493,12 +1494,6 @@
       "integrity": "sha512-LElXdjswlqjWrPpJFg1Fx4wpkOCxj1TDHlSV4PlaRxHGWko024xICaa97ZkMfs6DRKlCguiAI+rbXv5GWwXIkg==",
       "bin": true
     },
-    "astro-link-card@4.0.7": {
-      "integrity": "sha512-OYqwz/1s+Dbf8hmSe4ok0+gHciRJawgMLS8DuHJHlOFvzPW7X+UP1VSgk4FgPcdfZbJEyA1qgRDlCtizfwVCfQ==",
-      "dependencies": [
-        "rehype-og-card"
-      ]
-    },
     "astro@6.3.7": {
       "integrity": "sha512-zIeDRrI0qNgN1lcCjNqt6/IVCVej7VwSa326cO8uP9BOk1cg4QuffhLnOn2gCgWQr32/wxpSRFfXiLKHglu1Tw==",
       "dependencies": [
@@ -1553,7 +1548,7 @@
         "unstorage",
         "vfile",
         "vite@7.3.6",
-        "vitefu@1.1.3_vite@7.3.6",
+        "vitefu",
         "xxhash-wasm",
         "yargs-parser",
         "zod"
@@ -1615,7 +1610,7 @@
         "unifont",
         "unstorage",
         "vite@8.2.1_esbuild@0.28.1",
-        "vitefu@1.1.3_vite@8.2.1__esbuild@0.28.1_esbuild@0.28.1",
+        "vitefu",
         "xxhash-wasm",
         "yargs-parser",
         "zod"
@@ -4120,15 +4115,6 @@
       ],
       "bin": true
     },
-    "vitefu@1.1.3_vite@7.3.6": {
-      "integrity": "sha512-ub4okH7Z5KLjb6hDyjqrGXqWtWvoYdU3IGm/NorpgHncKoLTCfRIbvlhBm7r0YstIaQRYlp4yEbFqDcKSzXSSg==",
-      "dependencies": [
-        "vite@7.3.6"
-      ],
-      "optionalPeers": [
-        "vite@7.3.6"
-      ]
-    },
     "vitefu@1.1.3_vite@8.2.1__esbuild@0.28.1_esbuild@0.28.1": {
       "integrity": "sha512-ub4okH7Z5KLjb6hDyjqrGXqWtWvoYdU3IGm/NorpgHncKoLTCfRIbvlhBm7r0YstIaQRYlp4yEbFqDcKSzXSSg==",
       "dependencies": [
@@ -4186,6 +4172,7 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@astrojs/markdown-remark@^7.2.2",
         "npm:@astrojs/mdx@7.0.5",
         "npm:@astrojs/react@6.0.2",
         "npm:@astrojs/rss@4.0.19",
@@ -4195,13 +4182,13 @@
         "npm:@types/react-dom@^19.2.3",
         "npm:@types/react@^19.2.14",
         "npm:@types/remove-markdown@~0.3.4",
-        "npm:astro-link-card@^4.0.6",
         "npm:astro@7.2.0",
         "npm:clsx@^2.1.1",
         "npm:lucide-react@0.575",
         "npm:marked@^17.0.3",
         "npm:react-dom@^19.2.4",
         "npm:react@^19.2.4",
+        "npm:rehype-og-card@^3.1.13",
         "npm:remove-markdown@~0.6.3",
         "npm:tailwind-merge@^3.5.0",
         "npm:tailwindcss@^3.4.19",

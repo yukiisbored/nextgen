@@ -7,19 +7,35 @@ import tailwind from "@astrojs/tailwind";
 
 import react from "@astrojs/react";
 
-import linkCard from "astro-link-card";
+import { unified } from "@astrojs/markdown-remark";
+import rehypeOGCard from "rehype-og-card";
 
 // https://astro.build/config
 export default defineConfig({
-    site: "https://yukiisbo.red",
-    integrations: [tailwind(), mdx(), react(), linkCard()],
-    markdown: {
-        shikiConfig: {
-            // @ts-ignore
-            theme: customTheme,
-        },
+  site: "https://yukiisbo.red",
+  integrations: [tailwind(), mdx(), react()],
+  markdown: {
+    shikiConfig: {
+      // @ts-ignore
+      theme: customTheme,
     },
-    prefetch: {
-        prefetchAll: true,
-    },
+    processor: unified({
+      rehypePlugins: [
+        [
+          rehypeOGCard,
+          // See https://github.com/Robot-Inventor/astro-link-card/blob/main/src/index.ts#L16
+          {
+            buildCache: true,
+            buildCachePath: "./node_modules/.astro",
+            enableSameTextURLConversion: true,
+            serverCache: true,
+            serverCachePath: "./public",
+          },
+        ],
+      ],
+    }),
+  },
+  prefetch: {
+    prefetchAll: true,
+  },
 });
