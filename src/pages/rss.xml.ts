@@ -1,7 +1,7 @@
 import { loadRenderers } from "astro:container";
 import { getCollection, render } from "astro:content";
-import { getContainerRenderer as getMDXRenderer } from "@astrojs/mdx/container-renderer";
-import { getContainerRenderer as getReactRenderer } from "@astrojs/react/container-renderer";
+import { getContainerRenderer as getMDXRenderer } from "@astrojs/mdx";
+import { getContainerRenderer as getReactRenderer } from "@astrojs/react";
 import reactServerRenderer from "@astrojs/react/server.js";
 import rss, { type RSSFeedItem } from "@astrojs/rss";
 import type { APIContext } from "astro";
