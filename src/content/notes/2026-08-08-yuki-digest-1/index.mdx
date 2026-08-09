@@ -1,0 +1,532 @@
+---
+title: "Yuki's Digest #1: Third's time the charm"
+date: "2026-08-08"
+slug: "yuki-digest-1"
+draft: false
+---
+
+I used to run a weekly newsletter in both university and school.
+It stopped at around 2023 because I wanted to [recontemplate] how I spend my
+time in life as stopped needing to be in "survival mode".
+
+[recontemplate]: /notes/end-of-an-era
+
+It's been 3 years since and thankfully, I'm in a much better place now.
+
+In the age of slop, Anything that's made by humans by definition is valuable.
+It's important to preserve authentic expression of the human condition.
+
+Lets get started with the first public version.
+
+# Software Should Work
+
+YouTube has been recommending me this conference called [Software Should Work].
+
+[Software Should Work]: https://softwareshould.work/
+
+Honestly, I feel like I've been so jaded lately when it comes to computers,
+especially the "tech" scene.
+I wanted to do whatever I could to have anything but computers going on in my
+life as I don't need it to survive anymore.
+
+I relate a lot to [Andrew Kelley]'s "Don't Take the Black Pill".
+
+https://youtu.be/zLZwpH5lCD4
+
+[Andrew Kelley]: https://andrewkelley.me/
+
+# Hypermedia Revolution
+
+The rabbit hole that I found myself in however is [datastar].
+
+[datastar]: https://data-star.dev/
+
+https://www.youtube.com/watch?v=W7Ki3aXgmZU
+
+## First, a bit of background from work
+
+In the beginning, at work, we were a [Django] + [Angular] shop and I always
+loathe the REST/SPA approach.
+
+[Django]: https://docs.djangoproject.com/
+[Angular]: https://angular.dev
+
+Initially, I was just a backend developer: making the resources API necessary
+for the frontend developer to do their work.
+Everything was alright at first.
+
+Then the app started to handle more data, it felt noticably sluggish.
+As most of the team in the project has departed, I found myself having to work
+on the frontend and well...
+
+The reason why it's slow is because it tried to `JOIN` data from different
+resources on the client so it had to do `N+1` requests.
+Then on the mutation side, there's a bunch of workarounds to achieve the
+feature where it needed to cross the resource boundary to achieve something.
+
+So what could've been a dedicated API endpoint for both the query and mutation
+side ended up being a series of discrete requests.
+
+When my job shifted to lead the development effort at work for all projects,
+my first focus was to eliminate this awful experience as it's a pattern at the
+time.
+
+After a rather bumpy road, we shifted completely to [Laravel], [PHP], and
+engineers doing the whole stack.
+
+[Laravel]: https://laravel.com
+[PHP]: https://php.net
+
+We always joked about how bad PHP was when we were a [Python] shop, but [PHP 8]
+flipped that completely.
+Not to mention things in the ecosystem, like [PHP-FIG].
+
+[Python]: https://www.python.org/
+[PHP 8]: https://www.php.net/releases/8.0/en.php
+[PHP-FIG]: https://www.php-fig.org/
+
+The thing that sold us on Laravel were:
+
+- [Inertia.js] which eliminated the need for an API layer
+
+  At the time, there wasn't a good Inertia.js adapter for Django.
+
+- Laravel's more integrated ecosystem of packages.
+
+  Being reliant on so many third-party dependencies done by mostly strangers
+  for "the usual" was a massive PITA.
+
+  Our effort should be concentrated on what enables our customers, not window
+  shopping for the best S3 adapter or background job dispatch/queueing.
+
+[Inertia.js]: https://inertiajs.com/
+
+## Going back to Hypermedia
+
+In the bumpy road, we explored a lot of ways of doing the frontend.
+Ultimately, the state lives in the backend, but a good user experience is also
+important.
+
+[Livewire], [Blazor], [Phoenix LiveView] moved things too far away of the
+browser and we didn't like that.
+
+[Livewire]: https://livewire.laravel.com/
+[Blazor]: https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor
+[Phoenix LiveView]: https://phoenix-live-view.hexdocs.pm/welcome.html
+
+[Turbo] and [htmx] was closer, but it was too foreign and new for us.
+The idea of segmenting individual components into dedicated server-side pages
+was a bit out there at the time.
+
+[Turbo]: https://turbo.hotwired.dev/
+[htmx]: https://htmx.org/
+
+Ultimately, keeping it "traditional", but [React] instead of Angular made sense.
+Being able to leverage React's rich ecosystem was really valuable for us.
+
+[React]: https://react.dev
+
+Personally, for CRUDs, I'm very happy with Inertia.js.
+It's everything that I've ever wanted and it's great fun.
+
+But, these days, I feel like real-time is becoming the expected user experience.
+Polling works, but I always dreamed of being able to do real-time without it
+being difficult.
+
+Laravel's [Broadcasting] facilities are nice on paper, but in practice, the
+supporting components can be a massive pain. At least, [Reverb] improved the
+situation quite a bit.
+
+[Broadcasting]: https://laravel.com/docs/13.x/broadcasting
+
+At least with Inertia.js, we don't have to revert to reconcile state mutations
+manually, but our fancy WebSocket infrastructure being a mere "hey, shit
+happened, reload your state now!" is rather sad.
+
+The mentioned talk made me realize how much simpler and better SSEs are over
+WebSockets.
+
+Plus, the approach of [fat morphs] and leveraging [brotli] compression felt the
+most natural with datastar.
+
+[fat morphs]: https://data-star.dev/guide/the_tao_of_datastar#cqrs
+[brotli]: https://andersmurphy.com/2025/04/15/why-you-should-use-brotli-sse.html
+
+I tried playing with the Laravel integration, but I realized quickly that
+Laravel doesn't have an event system that crosses different PHP workers.
+
+https://github.com/putyourlightson/laravel-datastar/issues/10
+
+Laravel [Octane]/[Swoole] was hinted at me as a possible way of scaling large
+concurrent processes and it even have ways of crossing the boundary (which is
+pretty neat).
+
+[Octane]: https://laravel.com/docs/13.x/octane
+[Swoole]: https://swoole.com/
+
+To illustrate, this isn't possible:
+
+```php
+class QuoteController extends Controller
+{
+    public function listen()
+    {
+        $quote = Cache::rememberForever("quote", Inspiring::quotes()->random);
+
+        sse()->renderView("datastar.quote", [
+            "quote" => $quote,
+        ]);
+
+        return sse()->getEventStream(function () {
+            Event::listen(QuoteRandomized::class, function (
+                QuoteRandomized $e,
+            ) {
+                sse()->renderView("datastar.quote", [
+                    "quote" => $e->quote,
+                ]);
+            });
+        });
+    }
+
+    public function random()
+    {
+        $quote = Inspiring::quotes()->random();
+        Cache::set("quote", $quote);
+        QuoteRandomized::dispatch($quote);
+    }
+}
+```
+
+For now, I'll probably play with it using [Deno] as [BroadcastChannel] should
+make the above work.
+
+[Deno]: https://deno.dev
+[BroadcastChannel]: https://docs.deno.com/examples/broadcast_channel/
+
+If you know an example in Laravel (with source code), please let me know :)
+
+If you're looking for a component library that doesn't rely on a specific
+framework, the following seems pretty decent:
+
+https://basecoatui.com/
+
+https://daisyui.com/
+
+# The Backrooms
+
+If you haven't seen the Backrooms Movie, you really should.
+I'm not a fan of horror as don't like jumpscares.
+Plus, I've watched way too many shitty horror films.
+
+https://en.wikipedia.org/wiki/Backrooms_(film)
+
+It's refreshing seeing something new and unique for once rather than the same
+slop Hollywood is pushing out.
+
+# Little stroll around programming languages
+
+It's that time again where I just try different programming languages for no
+reason.
+
+This time is because of this talk about [Gleam] by Giacomo Cavalieri.
+
+[Gleam]: https://gleam.run/
+
+https://www.youtube.com/watch?v=E6_JqYMeNqs
+
+I went through the Gleam tour and I discovered CodeCrafters which is an
+interactive programming challenge platform where you build your own version of
+[Redis], Database, etc.
+
+[Redis]: https://redis.io/
+
+https://codecrafters.io/
+
+At the same time, I should mention "Build your own" series by James Smith.
+
+https://build-your-own.org/
+
+Plus, there's Crafting Interpreters by [Bob Nystrom] which I went through.
+I recommend it 10/10.
+
+[Bob Nystrom]: https://journal.stuffwithstuff.com/
+
+https://craftinginterpreters.com/
+
+## `(list processing)
+
+Anyway, I tried [Common Lisp], but I find [Lisp-2] (where functions and values
+are in separate namespaces) to be awkward.
+
+```lisp
+; Scheme (Lisp-1)
+(let ((foo 'bar)
+      (do-something (lambda () ...))
+  ...)
+```
+
+```lisp
+; Common Lisp (Lisp-2)
+(let ((foo 'bar))
+  (labels ((do-something (lambda () ...))
+    ...)
+  ```
+
+[Common Lisp]: https://en.wikipedia.org/wiki/Common_Lisp
+[Lisp-2]: https://en.wikipedia.org/wiki/Common_Lisp#The_function_namespace
+
+I moved to [Clojure] and at first, it's going OK.
+
+[Clojure]: https://clojure.org/
+
+At some point, I find it hard to reason due to the lack of types and the thing
+which sent me to the wall is:
+
+```
+clojure-noob.core=> (doc reduce)
+-------------------------
+clojure.core/reduce
+([f coll] [f val coll])
+```
+
+I'm used to [partial application] and [Eta conversion] in [Haskell] that this
+caught me off guard.
+
+[partial application]: https://wiki.haskell.org/index.php?title=Partial_application
+[Eta conversion]: https://wiki.haskell.org/Eta_conversion
+[Haskell]: https://www.haskell.org/
+
+Lisp will always have a special place in my heart.
+Scheme and [SICP] was my foray into FP.
+But I've changed and became an ML/Haskeller.
+
+[SICP]: https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/6515/sicp.zip/index.html
+
+That said, my short time has led me to the following resources:
+
+- [Land of Lisp], Entertaining book. Really enjoyed reading it.
+- [Clojure for the Brave and True], It's OK, but I prefer Land of Lisp.
+- But honestly, I find [this opinionated list for Clojure] to be the most
+  enlightening.
+- [Mine], The most accessible Common-Lisp editor
+
+[Land of Lisp]: http://landoflisp.com/
+[Clojure for the Brave and True]: https://www.braveclojure.com/
+[this opinionated list for Clojure]: https://gist.github.com/ssrihari/0bf159afb781eef7cc552a1a0b17786f
+[Mine]: https://coalton-lang.github.io/mine/
+
+## Back to Haskell
+
+I went back to Haskell and immediately felt like at home.
+Though, I don't miss the long compile times.
+
+I discovered [Linear Types], which replicates the Rust borrow checker in
+Haskell.
+Serokell made a nice video introduction on it:
+
+https://www.youtube.com/watch?v=FqDHSIpWJRw
+
+[Linear Types]: https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/linear_types.html
+
+My problem with Haskell is its laziness nature in practice which leads to
+[space leaks] and performance problems that are hard to reason with.
+
+[space leaks]: https://blog.ezyang.com/2011/05/space-leak-zoo/
+
+I discovered [Strict Haskell] soon after which is pretty interesting.
+I think [Make Invalid Laziness Unrepresentable] is a good write-up on the topic.
+
+[Strict Haskell]: https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/strict.html
+[Make Invalid Laziness Unrepresentable]: https://h2.jaguarpaw.co.uk/posts/make-invalid-laziness-unrepresentable/
+
+Though, I was hinted at [Idris] as a strict alternative of Haskell with
+dependent types.
+
+[Idris]: https://idris2.readthedocs.io/en/latest/tutorial/index.html
+
+I think I'll play around with Idris and see how it feels.
+I have heard about it and have heard about dependent types (mainly around Rocq
+though).
+Though, of course, unlike Haskell, there's not a lot of industry use, it seems.
+
+There's also [OCaml], but it feels lonely unless you're Jane Street.
+I learned OCaml from [Real World OCaml] which warped my perspective of OCaml to
+around Jane Street's ecosystem.
+
+[OCaml]: https://ocaml.org/
+[Real World OCaml]: https://realworldocaml.org/
+
+If you wanna pick up OCaml, I recommend the CS3110 course instead.
+
+https://cs3110.github.io/textbook/cover.html
+
+While you're here, if you wanna learn Haskell, I always recommend Get
+Programming with Haskell by by Will Kurt.
+
+https://www.manning.com/books/get-programming-with-haskell
+
+# Quake Heritage
+
+Since the start of the year, I've been working on a [Godot] "game engine" which
+replicates the approach of Quake tradition.
+I called it "srcbase".
+
+[Godot]: https://godotengine.org/
+
+What I meant by that is the designer focused way of creating levels with
+entities and triggers to create unique experiences.
+
+https://www.youtube.com/watch?v=tRqV47Pk6pc
+
+I never liked the approach of today's engine where you have to create levels
+with modular pieces and "objectize" interactions via prefabs and scripts.
+
+I have tried getting something with Quake heritage working, but it's just too
+much and unfun for me.
+
+func_godot has matured quite a lot since Qodot and it pretty much enabled me to
+do what I want.
+
+https://github.com/func-godot/func_godot_plugin
+
+import srcbaseDemo from "./srcbase.mp4"
+
+<video controls="controls">
+  <source src={srcbaseDemo} type="video/webm" />
+  <p>Your browser does not support the video tag.</p>
+</video>
+
+Thanks to StayAtHomeDev's Godot FPS Tutorial Series for the initial foundation.
+
+https://www.youtube.com/watch?v=L5ObCs9OMRY&list=PLEHvj4yeNfeHtjrRBSqEii1jcDx2yPv6-
+
+Also their video on setting up Trenchbroom + func_godot helped me wrapped my
+head around how it works.
+
+https://www.youtube.com/watch?v=3WUIsQKCDIk
+
+https://www.youtube.com/watch?v=kIvK4rzbqUs
+
+I was hoping to participate in Juniper Dev's Serious Game Jam with my partner,
+but unfortunately, it was moving week for me and it was just too much.
+
+https://www.youtube.com/watch?v=qbZQign1RnM
+
+We had a great concept that fits the theme though, sigh.
+At least, I spent the time needed to get the config pages done and dev console
+for manipulating Vars (CVar).
+
+My only problem right now is lighting and the lack of BSP step.
+
+There's someone who made a plugin which allows you to edit lights in the Godot
+Editor and have it reflected back in the `.map` file, but that's too
+destructive for me.
+
+There's also Quake BSP Importer for Godot, but it's not to the level of
+func_godot yet.
+
+https://www.youtube.com/watch?v=RvCyg_lm_7w
+
+https://github.com/jitspoe/godot_bsp_importer
+
+In terms of game assets, I was recommended [Pizza Doggy]'s assets.
+
+[Pizza Doggy]: https://pizzadoggy.itch.io/
+
+It works really well, but it looks too horror themed.
+
+Then, I realized that I can just use WADs which unlocked using the assets from the Quake mapping community.
+
+https://www.slipseer.com/index.php?resources/categories/assets.17/
+
+But I think everyone and their dog loves [Makkon's textures].
+
+[Makkon's textures]: https://www.slipseer.com/index.php?resources/makkon-textures.28/
+
+https://www.youtube.com/watch?v=piiYIExIN6E
+
+While you're here, I recommend Slipseer's videos on the more advanced
+Trenchbroom techniques.
+
+https://www.youtube.com/@Slipseer/videos
+
+Plus, dumptruck_ds' excellent tutorials on Trenchbroom.
+
+https://www.youtube.com/watch?v=gONePWocbqA&list=PLgDKRPte5Y0AZ_K_PZbWbgBAEt5xf74aE
+
+On the topic of level design in general, the Level Design Book is a godsend.
+
+https://book.leveldesignbook.com/
+
+My partner have gone through a game development program and recommended "An
+Architectural Approach to Level Design".
+
+https://www.goodreads.com/en/book/show/19354638-an-architectural-approach-to-level-design
+
+Oh and also, Retro Modern Game Development with GZDoom by Neil McCallion is a
+nice talk.
+
+https://www.youtube.com/watch?v=T3otIvWC98s
+
+# Reflecting on isolation
+
+Whenever I met someone one of the couple things they always ask is my handle on
+Instagram, Twitter, etc.
+
+I always get a surprising reaction whenever I say that I don't use social media
+and I'm not on any of those.
+
+I don't even remember when I quit social media altogether.
+These days, I don't even participate in much online communities/discourse.
+
+It does feel lonely from time to time, especially when friends are unreachable
+because life.
+At the same time, you start value the few people you have close to you.
+
+I tried easing back via Final Fantasy XIV, Discord servers, and even open
+source.
+
+But, ultimately, what I experienced is how dehumanizing the online experience
+is today.
+Relationships felt rather transactional/impersonal and if you don't conform to
+whichever hole they want you to be in, the norm is to block or cancel.
+
+At the end, I did manage to get a handful of people who I become close with
+personally to this day, but it was awful.
+
+I miss friends whom I've lost contact with, but every time I think about being
+more active in online communities, I can't shake what I've experienced.
+
+I just wish people were kinder.
+
+# Releasing my pet projects publicly
+
+Yesterday, I've decided to just publicly release all of the random small
+abandoned projects that were just sitting in my GitHub.
+
+https://github.com/yukiisbored?tab=repositories
+
+I think I should do this more often.
+
+# Ending
+
+I've been considering about writing more regularly since I missed expressing
+myself publicly, even if it fall on deaf ears.
+
+I don't think I'll be back on whatever Twitter clone du jour is.
+I think blogging's plenty for me to start.
+
+I should start participating more in real life communities, but the language
+barrier makes it hard.
+
+I hope now that life is more stabler in my new home, I could start dedicating
+more time learning German and able to speak more fluently rather than just
+listen/read.
+
+I'm sad that Chatterbug shut down though. It was the best online language
+tutor experience I've had.
+
+If you wish to reach out to me, you can always email me.
+I don't know how often I'll do this, but it was nice.
+
+See y'all later o/
