@@ -44,6 +44,18 @@ export type Series = {
 };
 
 export const games: Record<string, Game | Series> = {
+  "Rabbit and Steel": {
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "peer-to-peer" }],
+  },
+  "Big Walk": {
+    method: {
+      type: "built-in",
+    },
+    connectionModes: [{ type: "peer-to-peer" }],
+  },
   "Forza Horizon 6": {
     method: {
       type: "built-in",
