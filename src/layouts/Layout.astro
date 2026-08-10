@@ -3,7 +3,6 @@ import type { CSSProperties } from "react";
 import character from "../assets/character.png";
 import circle from "../assets/circle.svg?raw";
 import { Image } from "astro:assets";
-import About from "../components/About.md";
 
 interface Props {
   title?: string;
@@ -36,7 +35,7 @@ const circleStyle = {
   backgroundRepeat: "no-repeat",
   shapeOutside:
     "polygon(0.04% 0.16%, 80.74% 0.31%, 80.88% 18.27%, 84.87% 24.17%, 86.53% 30.89%, 84.97% 39.12%, 82.17% 44.06%, 77.57% 48.45%, 76.39% 52.35%, 80.59% 55.6%, 87.27% 59.09%, 90.55% 63.47%, 79.51% 67.85%, 76.48% 86.07%, 77.68% 95.83%, 77.67% 100.9%, -1.76% 100.98%, 0% 50%)",
-  shapeMargin: "1.5rem",
+  shapeMargin: "2.5rem",
 } satisfies CSSProperties;
 ---
 
@@ -83,7 +82,7 @@ const circleStyle = {
     </div>
     <div class="p-4 mt-5 mx-auto max-w-5xl">
       <div
-        class="float-none md:float-left w-[400px] h-fit mr-8"
+        class="float-none md:float-left w-full md:w-[400px] h-fit"
         style={circleStyle}
       >
         <Image
