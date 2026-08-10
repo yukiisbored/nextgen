@@ -10,9 +10,6 @@ import react from "@astrojs/react";
 import { unified } from "@astrojs/markdown-remark";
 import rehypeOGCard from "rehype-og-card";
 
-// @ts-expect-error Too lazy to fix tsconfig.json
-const ci = process.env.CI !== undefined;
-
 // https://astro.build/config
 export default defineConfig({
   site: "https://yukiisbo.red",
@@ -28,8 +25,13 @@ export default defineConfig({
           rehypeOGCard,
           // See https://github.com/Robot-Inventor/astro-link-card/blob/main/src/index.ts#L16
           {
-            buildCache: !ci,
+            // buildCache flag not only controls whether to create new cached
+            // entries, but also whether to use the cache itself.
+            //
+            // https://github.com/Robot-Inventor/rehype-og-card/blob/e30830d74679e2b6eaab54863d147b9a0759a4fb/src/index.ts#L127
+            buildCache: true,
             buildCachePath: "./.cache/og-card",
+            buildCacheMaxAge: 31557600000,
             enableSameTextURLConversion: true,
             serverCache: true,
             serverCachePath: "./public",
