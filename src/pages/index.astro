@@ -36,9 +36,41 @@ const post = (await getCollection("notes"))
           <a href="/notes">See past notes</a>.
         </li>
       </ul>
-      <p>Have fun.</p>
+      <p>
+        If you'd like to share this post,<br />copy the <a
+          href={`/notes/${post.data.slug}`}
+          id="permalink">permalink</a
+        >.
+      </p>
+      <p>Thanks and have fun.</p>
     </nav>
   </div>
+
+  <script>
+    const permalink = document.getElementById("permalink");
+    let permalinkCopied = false;
+
+    permalink.onclick = (e) => {
+      if (permalinkCopied) {
+        return;
+      }
+
+      e.preventDefault();
+
+      navigator.clipboard.writeText(permalink.href).then(
+        () => {
+          permalink.innerText = "permalink (copied!)";
+          setTimeout(() => {
+            permalink.innerText = "permalink";
+            permalinkCopied = true;
+          }, 1000);
+        },
+        () => {
+          window.location = permalink.href;
+        },
+      );
+    };
+  </script>
   <article>
     <Post post={post} />
   </article>
