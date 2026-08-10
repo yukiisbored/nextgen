@@ -23,25 +23,41 @@ const post = (await getCollection("notes"))
 ---
 
 <Layout title={post.data.title}>
+  <div class="relative hidden xl:block">
+    <section
+      class="absolute top-0 left-[100%] ml-8 w-max text-gray-500 flex flex-col gap-4"
+    >
+      <p>Looking for something else?</p>
+      <ul>
+        <li>
+          <a href="#footer">Check the footer</a>,
+        </li>
+        <li>
+          <a href="/notes">See past notes</a>.
+        </li>
+      </ul>
+      <p>Have fun.</p>
+    </section>
+  </div>
   <article>
     <Post post={post} />
   </article>
+
+  <style is:global>
+    .about h1 {
+      @apply text-2xl font-bold;
+    }
+
+    .about h1 a {
+      @apply text-2xl font-bold;
+    }
+
+    .about ul {
+      @apply list-disc pl-10 mt-2 text-xl;
+    }
+
+    .about li {
+      @apply mt-2;
+    }
+  </style>
 </Layout>
-
-<style is:global>
-  .about h1 {
-    @apply text-2xl font-bold;
-  }
-
-  .about h1 a {
-    @apply text-2xl font-bold;
-  }
-
-  .about ul {
-    @apply list-disc pl-10 mt-2 text-xl;
-  }
-
-  .about li {
-    @apply mt-2;
-  }
-</style>
