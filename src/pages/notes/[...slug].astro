@@ -3,29 +3,17 @@ import { getCollection, render } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Admonition from "../../components/Admonition.astro";
 import { description } from "../../utils/seo";
+import Post from "../../components/Post.astro";
 
 export async function getStaticPaths() {
-	const posts = await getCollection("notes");
-	return posts.map((post) => ({
-		params: { slug: post.id },
-		props: { post },
-	}));
+  const posts = await getCollection("notes");
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
 }
 
 const { post } = Astro.props;
-const { Content, headings } = await render(post);
-
-const tableOfContents =
-	headings.length > 0
-		? {
-				items: headings
-					.filter((heading) => heading.depth === 1)
-					.map((heading) => ({
-						url: `#${heading.slug}`,
-						title: heading.text,
-					})),
-			}
-		: null;
 ---
 
 <Layout
@@ -33,51 +21,5 @@ const tableOfContents =
   type="article"
   description={post.data.description || description(post.body ?? "")}
 >
-  <div class="flex flex-col">
-    <header>
-      <div class="text-right text-sm md:text-xs">
-        <a href="/notes">INDEX</a>
-        {" | "}
-        <a href="/">HOME</a>
-      </div>
-      <div class="text-center mt-10">
-        <h1 class="font-bold text-yuki text-3xl md:text-6xl">
-          {post.data.title}
-        </h1>
-        <p class="text-xl text-yuki-dark font-medium mt-4">
-          Published on {post.data.date}
-        </p>
-      </div>
-    </header>
-
-    {post.data.draft && (
-      <Admonition type="warning" title="This is a draft, do not share">
-        This post is a draft and is subject to change.
-        Please don't share it on social media nor quote/cite it as a source.
-      </Admonition>
-    )}
-
-    {tableOfContents && tableOfContents.items.length > 0 && (
-      <section class="mt-4">
-        <h2 class="font-bold text-2xl md:text-3xl text-yuki">
-          Table of Contents
-        </h2>
-        <ul class="list-decimal pl-10 mt-2">
-          {tableOfContents.items.map((item) => (
-            <li>
-              <a href={item.url}>{item.title}</a>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )}
-
-    <article class="prose-yuki mt-4">
-      <Content />
-    </article>
-
-    <footer class="mt-4">
-      <a href="/notes">← Return to notes</a>
-    </footer>
-  </div>
+  <Post post={post} />
 </Layout>

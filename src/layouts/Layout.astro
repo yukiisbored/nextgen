@@ -1,37 +1,50 @@
 ---
+import type { CSSProperties } from "react";
+import character from "../assets/character.png";
+import circle from "../assets/circle.svg?raw";
+import { Image } from "astro:assets";
+import About from "../components/About.md";
 
 interface Props {
-	title?: string;
-	author?: string;
-	description?: string;
-	image?: string;
-	type?: string;
+  title?: string;
+  author?: string;
+  description?: string;
+  image?: string;
+  type?: string;
 }
 
 const defaults = {
-	title: "yukiisbo.red",
-	author: "Yuki Langley",
-	description: "The personal website of a computer hobbyist dork",
-	type: "website",
-	image: "/profile.png",
+  title: "yukiisbo.red",
+  author: "Yuki Langley",
+  description: "The personal website of a computer hobbyist dork",
+  type: "website",
+  image: "/profile.png",
 };
 
 const seo = {
-	...defaults,
-	...Astro.props,
-	title: Astro.props.title
-		? `${Astro.props.title} | ${defaults.title}`
-		: defaults.title,
-	image: Astro.props.image
-		? new URL(Astro.url, Astro.props.image)
-		: defaults.image,
+  ...defaults,
+  ...Astro.props,
+  title: Astro.props.title
+    ? `${Astro.props.title} | ${defaults.title}`
+    : defaults.title,
+  image: Astro.props.image
+    ? new URL(Astro.url, Astro.props.image)
+    : defaults.image,
 };
+const circleStyle = {
+  backgroundImage: `url('data:image/svg+xml;base64,${btoa(circle)}')`,
+  backgroundRepeat: "no-repeat",
+  shapeOutside:
+    "polygon(0.04% 0.16%, 80.74% 0.31%, 80.88% 18.27%, 84.87% 24.17%, 86.53% 30.89%, 84.97% 39.12%, 82.17% 44.06%, 77.57% 48.45%, 76.39% 52.35%, 80.59% 55.6%, 87.27% 59.09%, 90.55% 63.47%, 79.51% 67.85%, 76.48% 86.07%, 77.68% 95.83%, 77.67% 100.9%, -1.76% 100.98%, 0% 50%)",
+  shapeMargin: "1.5rem",
+} satisfies CSSProperties;
 ---
+
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link
@@ -43,7 +56,7 @@ const seo = {
 
     <title>{seo.title}</title>
 
-		<meta name="generator" content={Astro.generator} />
+    <meta name="generator" content={Astro.generator} />
     <meta name="description" content={seo.description} />
     <meta name="image" content={seo.image} />
     <meta name="author" content={seo.author} />
@@ -57,75 +70,155 @@ const seo = {
     <meta property="og:description" content={seo.description} />
     <meta property="og:image" content={seo.image} />
     <meta property="og:url" content={Astro.url} />
-	</head>
-	<body class="p-4 mt-5 mx-auto max-w-5xl">
-		<slot />
-	</body>
+  </head>
+  <body>
+    <div
+      class="absolute top-0 left-0 right-0 h-16 -z-10 flex flex-col justify-end bg-yuki"
+    >
+      <h1
+        class="mx-auto max-w-5xl text-right font-mono text-white w-full pr-5 z-10"
+      >
+        yukiisbo.red
+      </h1>
+    </div>
+    <div class="p-4 mt-5 mx-auto max-w-5xl">
+      <div
+        class="float-none md:float-left w-[400px] h-fit mr-8"
+        style={circleStyle}
+      >
+        <Image
+          src={character}
+          alt="Drawing of my character by Luciel Teo"
+          class="filter drop-shadow-lg"
+          loading="eager"
+        />
+      </div>
+
+      <header class="flex flex-col items-end text-right mt-8">
+        <h2 class="text-8xl font-bold">
+          {Astro.props.title ?? defaults.title}
+        </h2>
+      </header>
+
+      <slot />
+    </div>
+    <div class="bg-yuki">
+      <footer
+        class="max-w-5xl mx-auto p-4 py-8 text-white grid grid-cols-3 grid-rows-1 gap-8"
+      >
+        <div class="flex flex-col gap-4">
+          <h1 class="font-bold">Hello world! I'm Yuki Langley.</h1>
+          <p>
+            This is my small corner on the internet where I write about things
+            that matters to me.
+          </p>
+          <p>
+            At the moment, I'm not active in any of the public social media
+            websites.
+          </p>
+          <p>
+            If you'd like to contact me, you can email me via hi@ this website.
+          </p>
+        </div>
+
+        <div>
+          <ul>
+            <li>
+              <a href="/notes">Notes</a>,
+            </li>
+            <li>
+              <a href="https://github.com/yuki_is_bored">Code</a>,
+            </li>
+            <li>
+              <a href="https://yukiisbored.itch.io">Games</a>.
+            </li>
+          </ul>
+        </div>
+        <div>
+          Character art by <a href="https://twitter.com/Luciel_Teo"
+            >Luciel Teo</a
+          >.<br />
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/"
+            >CC BY-SA 4.0</a
+          >. <br /><br />
+          All writings are typed by my own hands done with a computer keyboard.<br
+          />
+          <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">
+            CC BY-NC-ND 4.0
+          </a>.
+        </div>
+      </footer>
+    </div>
+  </body>
 </html>
 
 <style is:global>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
 
-a {
-  @apply text-yuki hover:text-yuki-dark active:underline focus:underline font-medium;
-}
+  a {
+    @apply text-yuki hover:text-yuki-dark active:underline focus:underline font-medium;
+  }
 
-.prose-yuki {
-  @apply prose prose-a:text-yuki prose-a:no-underline hover:prose-a:text-yuki-dark prose-h1:text-yuki prose-h2:text-yuki prose-h3:text-yuki prose-h4:text-yuki;
-  max-width: inherit;
-}
+  footer a {
+    @apply text-white hover:text-white font-bold underline;
+  }
 
-.prose-yuki video {
-  @apply w-full aspect-video;
-}
+  .prose-yuki {
+    @apply prose prose-a:text-yuki prose-a:no-underline hover:prose-a:text-yuki-dark prose-h1:text-yuki prose-h2:text-yuki prose-h3:text-yuki prose-h4:text-yuki;
+    max-width: inherit;
+  }
 
-.prose-yuki iframe {
-  @apply w-full;
-}
+  .prose-yuki video {
+    @apply w-full aspect-video;
+  }
 
-.prose-yuki code:not(pre code) {
-  @apply text-yuki;
-}
+  .prose-yuki iframe {
+    @apply w-full;
+  }
 
-.og-card-container {
-  @apply my-6;
-}
+  .prose-yuki code:not(pre code) {
+    @apply text-yuki;
+  }
 
-.og-card-container > a {
-  @apply flex flex-row items-stretch no-underline rounded-lg border border-yuki/30 overflow-hidden bg-white text-inherit font-normal transition-colors hover:bg-yuki/5 hover:border-yuki focus:bg-yuki/5 focus:border-yuki;
-}
+  .og-card-container {
+    @apply my-6;
+  }
 
-.og-card-info {
-  @apply flex flex-col flex-1 min-w-0 p-4 gap-1;
-}
+  .og-card-container > a {
+    @apply flex flex-row items-stretch no-underline rounded-lg border border-yuki/30 overflow-hidden bg-white text-inherit font-normal transition-colors hover:bg-yuki/5 hover:border-yuki focus:bg-yuki/5 focus:border-yuki;
+  }
 
-.og-card-title {
-  @apply font-semibold text-base md:text-lg text-yuki-dark line-clamp-2;
-}
+  .og-card-info {
+    @apply flex flex-col flex-1 min-w-0 p-4 gap-1;
+  }
 
-.og-card-description {
-  @apply text-sm text-gray-600 line-clamp-2;
-}
+  .og-card-title {
+    @apply font-semibold text-base md:text-lg text-yuki-dark line-clamp-2;
+  }
 
-.og-card-url-container {
-  @apply flex flex-row items-center gap-2 mt-auto pt-2 min-w-0;
-}
+  .og-card-description {
+    @apply text-sm text-gray-600 line-clamp-2;
+  }
 
-.og-card-favicon {
-  @apply w-4 h-4 m-0 flex-shrink-0;
-}
+  .og-card-url-container {
+    @apply flex flex-row items-center gap-2 mt-auto pt-2 min-w-0;
+  }
 
-.og-card-url {
-  @apply text-xs text-gray-500 truncate;
-}
+  .og-card-favicon {
+    @apply w-4 h-4 m-0 flex-shrink-0;
+  }
 
-.og-card-image-container {
-  @apply hidden md:block flex-shrink-0 w-48 bg-yuki/5;
-}
+  .og-card-url {
+    @apply text-xs text-gray-500 truncate;
+  }
 
-.og-card-image {
-  @apply w-full h-full object-cover m-0;
-}
+  .og-card-image-container {
+    @apply hidden md:block flex-shrink-0 w-48 bg-yuki/5;
+  }
+
+  .og-card-image {
+    @apply w-full h-full object-cover m-0;
+  }
 </style>

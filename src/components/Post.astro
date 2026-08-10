@@ -1,0 +1,68 @@
+---
+import { render, type getCollection } from "astro:content";
+import Admonition from "./Admonition.astro";
+
+type Post = Awaited<ReturnType<typeof getCollection<"notes">>>[0];
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+
+const tableOfContents =
+  headings.length > 0
+    ? {
+        items: headings
+          .filter((heading) => heading.depth === 1)
+          .map((heading) => ({
+            url: `#${heading.slug}`,
+            title: heading.text,
+          })),
+      }
+    : null;
+---
+
+<div class="text-right">
+  {
+    new Date(post.data.date).toLocaleString(undefined, {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  }
+</div>
+
+<div class="relative">
+  {
+    tableOfContents && tableOfContents.items.length > 0 && (
+      <section class="absolute top-0 right-[100%] mr-8 w-max">
+        <h2 class="font-bold text-2xl md:text-3xl text-yuki">
+          Table of Contents
+        </h2>
+        <ul class="list-decimal pl-10 mt-2">
+          {tableOfContents.items.map((item) => (
+            <li>
+              <a href={item.url}>{item.title}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    post.data.draft && (
+      <Admonition type="warning" title="This is a draft, do not share">
+        This post is a draft and is subject to change. Please don't share it on
+        social media nor quote/cite it as a source.
+      </Admonition>
+    )
+  }
+
+  <article class="prose-yuki mt-4">
+    <Content />
+  </article>
+</div>
