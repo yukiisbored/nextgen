@@ -46,7 +46,7 @@ export type Series = {
 export const games: Record<string, Game | Series> = {
   "Forza Horizon 6": {
     method: {
-      type: "built-in"
+      type: "built-in",
     },
     connectionModes: [{ type: "peer-to-peer" }],
   },
@@ -127,7 +127,8 @@ export const games: Record<string, Game | Series> = {
       modSupport: true,
     },
     notes: [
-      "You can use [Zandronum](https://zandronum.com/) to play with more than 4 players and get better mod support.",
+      "If you're on PC, use [UZDOOM](https://github.com/UZDoom/uzdoom).",
+      "Since 5.x, it has revamped multiplayer support to the point where Zandronum isn't a requirement anymore.",
     ],
   },
   "NZ: Portable (COD Zombies Demake)": {
